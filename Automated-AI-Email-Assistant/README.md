@@ -1,6 +1,8 @@
 # AI Email Assistant Workflow
 
-https://www.loom.com/share/cfe408a4bb984cd2bc69670fe070b53a
+<a href="https://www.loom.com/share/cfe408a4bb984cd2bc69670fe070b53a">
+<img width="1365" height="619" alt="image" src="https://github.com/user-attachments/assets/84fb98fe-4b33-415b-8b83-efcb13f54e2f" />
+</a>
 
 ## Objective
 Automatically process incoming Gmail messages, summarize them, draft an AI-generated reply when needed, and route the draft for human approval via Telegram before it's ever sent — keeping a human in the loop while removing the manual triage work.
