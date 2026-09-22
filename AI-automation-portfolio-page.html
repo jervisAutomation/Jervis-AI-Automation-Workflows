@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jervis // AI Automation Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06090e;
+      --card-bg: rgba(15, 20, 28, 0.75);
+      --card-border: #1f293d;
+      --green: #00ff66;
+      --green-glow: rgba(0, 255, 102, 0.4);
+      --cyan: #00e5ff;
+      --cyan-glow: rgba(0, 229, 255, 0.4);
+      --purple: #bd00ff;
+      --purple-glow: rgba(189, 0, 255, 0.4);
+      --yellow: #ffb703;
+      --red: #ff4757;
+      --text: #c9d1d9;
+      --text-dim: #7d8590;
+      --text-white: #ffffff;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-heading: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      line-height: 1.6;
+      padding-bottom: 60px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Interactive Matrix Canvas Background */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    /* Dynamic Glow Orbs */
+    .glow-orb {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(140px);
+      z-index: -1;
+      pointer-events: none;
+      animation: float 12s infinite alternate ease-in-out;
+    }
+
+    .glow-1 {
+      top: -100px;
+      left: -100px;
+      background: var(--green-glow);
+    }
+
+    .glow-2 {
+      bottom: -100px;
+      right: -100px;
+      background: var(--cyan-glow);
+      animation-delay: -6s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 40px) scale(1.15); }
+    }
+
+    /* Terminal Scanlines Accent */
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+      background-size: 100% 4px;
+      z-index: 99;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header {
+      padding: 30px 0 20px 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 40px;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--green);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 10px var(--green-glow);
+      transition: all 0.3s ease;
+    }
+
+    .logo:hover {
+      text-shadow: 0 0 20px var(--green);
+    }
+
+    .logo span {
+      color: var(--text-white);
+    }
+
+    .social-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .social-links a:hover {
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    /* Animated Status Chip */
+    .system-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 255, 102, 0.08);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 255, 102, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0); }
+    }
+
+    /* Route Container Control */
+    .view-page {
+      display: none;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .view-page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+
+    .breadcrumb a {
+      color: var(--cyan);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--green);
+      text-decoration: underline;
+    }
+
+    /* Catalog Page */
+    .catalog-header h1 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      color: var(--text-white);
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .catalog-header p {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+    }
+
+    /* About Box */
+    .about-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--green);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 24px 0 36px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .about-box p {
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .about-box strong {
+      color: var(--green);
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 28px;
+      margin-top: 24px;
+    }
+
+    /* Gamified Cyber Cards */
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 30px -15px rgba(0,0,0,0.5);
+    }
+
+    .project-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), var(--cyan), var(--purple));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(0, 255, 102, 0.5);
+      box-shadow: 0 20px 40px -15px rgba(0, 255, 102, 0.25);
+    }
+
+    .project-card:hover::before {
+      opacity: 1;
+    }
+
+    .project-card.placeholder {
+      border-style: dashed;
+      opacity: 0.5;
+    }
+
+    .project-card.placeholder:hover {
+      transform: none;
+      border-color: var(--card-border);
+      box-shadow: none;
+    }
+
+    .card-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      display: block;
+      font-weight: 700;
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      color: var(--text-white);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+
+    .card-tech {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tech-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .project-card:hover .tech-pill {
+      border-color: rgba(0, 229, 255, 0.4);
+      color: var(--cyan);
+    }
+
+    /* Project Detail Page */
+    .project-meta-header {
+      margin-bottom: 30px;
+    }
+
+    .project-meta-header h1 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      color: var(--text-white);
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-status {
+      background: rgba(0, 255, 102, 0.12);
+      color: var(--green);
+      border: 1px solid var(--green);
+      box-shadow: 0 0 10px var(--green-glow);
+    }
+
+    .badge-ext {
+      background: rgba(0, 229, 255, 0.12);
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+    }
+
+    .loom-container {
+      position: relative;
+      padding-bottom: 62.5%;
+      height: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      margin-bottom: 30px;
+      background: #000;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      transition: border-color 0.3s ease;
+    }
+
+    .loom-container:hover {
+      border-color: var(--cyan);
+    }
+
+    .loom-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      color: var(--text-white);
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+      margin: 36px 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: "//";
+      color: var(--green);
+    }
+
+    .content-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .step-list {
+      list-style: none;
+    }
+
+    .step-item {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 18px;
+      line-height: 1.7;
+    }
+
+    .step-item::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+      font-weight: bold;
+      transition: transform 0.2s ease;
+    }
+
+    .step-item:hover::before {
+      transform: translateX(4px);
+      color: var(--green);
+    }
+
+    .step-item strong {
+      color: var(--text-white);
+    }
+
+    /* Action Play Button */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--green), #00c853);
+      color: #000;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 20px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 20px var(--green-glow);
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px var(--green);
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--card-border);
+      padding-top: 30px;
+    }
+
+    /* Typing cursor */
+    .typing-cursor::after {
+      content: "|";
+      animation: blink 1s infinite;
+      color: var(--green);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Matrix Animation -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Ambient Glow Orbs -->
+  <div class="glow-orb glow-1"></div>
+  <div class="glow-orb glow-2"></div>
+
+  <div class="container">
+    <header>
+      <div class="nav-bar">
+        <a href="#/" class="logo">jervis<span>@automation:~#</span></a>
+        <div class="social-links">
+          <a href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:contact@jervisautomation.dev">Contact</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- CATALOG VIEW (#/) -->
+    <main id="catalog-view" class="view-page">
+      <div class="catalog-header">
+        <div class="system-status">
+          <div class="pulse-dot"></div>
+          <span>SYSTEM ONLINE • AUTOMATION ENGINE ACTIVE</span>
+        </div>
+        <h1>AI Automation Workflows</h1>
+        <p class="typing-cursor">// Production-ready n8n workflows, autonomous agents, and AI pipelines.</p>
+      </div>
+
+      <!-- About Jervis Section -->
+      <div class="about-box">
+        <p>👋 Hi, I'm <strong>Jervis</strong> — an aspiring <strong>AI Automation Specialist</strong> dedicated to solving complex real-world problems through intelligent AI automation workflows, LLM agents, and seamless API integrations.</p>
+      </div>
+
+      <div class="project-grid" id="project-cards-container">
+        <!-- Rendered via Javascript -->
+      </div>
+    </main>
+
+    <!-- PROJECT DETAIL VIEW (#/project/:id) -->
+    <main id="project-detail-view" class="view-page">
+      <div class="breadcrumb">
+        <a href="#/">&lt; Back to Catalog</a> / <span id="project-slug-breadcrumb">workflow</span>
+      </div>
+
+      <div class="project-meta-header">
+        <div class="badge-bar">
+          <span class="badge badge-status" id="detail-status">● Active</span>
+          <span class="badge badge-ext" id="detail-version">n8n v1.9</span>
+        </div>
+        <h1 id="detail-title">Loading Workflow...</h1>
+        <p id="detail-desc" style="color: var(--text-dim); font-size: 1.1rem;"></p>
+      </div>
+
+      <div class="loom-container" id="loom-embed-box">
+        <!-- Loom iframe inserted here -->
+      </div>
+
+      <a id="github-repo-btn" href="#" target="_blank" rel="noopener" class="btn-action">
+        ⚡ Inspect Source Code on GitHub
+      </a>
+
+      <h2 class="section-title">Overview</h2>
+      <div class="content-box">
+        <p id="detail-overview-text"></p>
+      </div>
+
+      <h2 class="section-title">Pipeline Architecture & Flow</h2>
+      <div class="content-box">
+        <ul class="step-list" id="detail-steps-list">
+          <!-- Dynamic Steps -->
+        </ul>
+      </div>
+    </main>
+
+    <footer>
+      <p>Jervis Automation Engine © 2026 • Powered by n8n, AI & Vercel</p>
+    </footer>
+  </div>
+
+  <script>
+    // MATRIX RAIN BACKGROUND ANIMATION
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const chars = '01101001 01101110 01110100 01100101 01101100 01101100 01101001 01100111 01100101 01101110 01100011 01100101'.split('');
+    const fontSize = 12;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(6, 9, 14, 0.08)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#00ff66';
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 40);
+
+    // CENTRALIZED WORKFLOW REGISTRY
+    const WORKFLOWS = [
+      {
+        id: "email-assistant",
+        title: "AI Email Assistant Workflow",
+        summary: "Autonomous Gmail assistant using Groq LLM to summarize incoming emails, draft HTML replies, and gate execution via Telegram double-approval.",
+        status: "Production Ready",
+        version: "n8n v1.9",
+        loomId: "cfe408a4bb984cd2bc69670fe070b53a",
+        githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows",
+        tech: ["n8n", "Groq LLM", "Gmail API", "Telegram Bot"],
+        overview: "An end-to-end autonomous email processing pipeline designed to reduce inbox overload[cite: 1]. The workflow continuously monitors Gmail for unread messages[cite: 1], leverages Groq LLM (openai/gpt-oss-20b) to analyze context[cite: 1], drafts polite HTML responses[cite: 1], and enforces human-in-the-loop validation through Telegram before sending[cite: 1].",
+        pipelineSteps: [
+          "<strong>Ingest & Poll:</strong> Polls Gmail every minute for unread messages arriving in the INBOX[cite: 1].",
+          "<strong>LLM Processing & Structured Parsing:</strong> Groq Chat Model (openai/gpt-oss-20b) processes email content and outputs a strict JSON payload containing summary, reply urgency, and proposed HTML response[cite: 1].",
+          "<strong>Decision Filter:</strong> Checks if 'reply_needed' equals 'Yes'[cite: 1]. If No, routes a brief alert to Telegram and terminates[cite: 1].",
+          "<strong>Draft Creation:</strong> Automatically generates a pending email draft in Gmail attached to the original thread ID[cite: 1].",
+          "<strong>Human-in-the-Loop Gate:</strong> Sends an interactive Telegram notification via double-approval request buttons (Approve / Disapprove)[cite: 1].",
+          "<strong>Execution / Cancel:</strong> If approved, executes a direct HTTP POST request to Gmail API (<code>/v1/users/me/drafts/send</code>)[cite: 1]. If rejected, triggers a No-Op safely[cite: 1]."
+        ]
+      }
+    ];
+
+    // ROUTER ENGINE
+    function handleRouting() {
+      const hash = window.location.hash || '#/';
+      const catalogView = document.getElementById('catalog-view');
+      const detailView = document.getElementById('project-detail-view');
+
+      if (hash.startsWith('#/project/')) {
+        const projectId = hash.replace('#/project/', '');
+        const project = WORKFLOWS.find(w => w.id === projectId);
+
+        if (project) {
+          renderProjectDetail(project);
+          catalogView.classList.remove('active');
+          detailView.classList.add('active');
+          window.scrollTo(0, 0);
+          return;
+        }
+      }
+
+      // Default Catalog View
+      renderCatalog();
+      detailView.classList.remove('active');
+      catalogView.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function renderCatalog() {
+      const container = document.getElementById('project-cards-container');
+      
+      let html = WORKFLOWS.map(w => `
+        <a href="#/project/${w.id}" class="project-card">
+          <div>
+            <span class="card-tag">⚡ ${w.tech.slice(0, 2).join(' • ')}</span>
+            <h3 class="card-title">${w.title}</h3>
+            <p class="card-desc">${w.summary}</p>
+          </div>
+          <div class="card-tech">
+            ${w.tech.map(t => `<span class="tech-pill">${t}</span>`).join('')}
+          </div>
+        </a>
+      `).join('');
+
+      // Extensible placeholder slot
+      html += `
+        <div class="project-card placeholder">
+          <div>
+            <span class="card-tag" style="color: var(--text-dim);">// IN DEVELOPMENT</span>
+            <h3 class="card-title" style="color: var(--text-dim);">Next Workflow Slot</h3>
+            <p class="card-desc">Future AI automation pipeline will be attached here upon repository push.</p>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function renderProjectDetail(p) {
+      document.getElementById('project-slug-breadcrumb').innerText = p.id;
+      document.getElementById('detail-title').innerText = p.title;
+      document.getElementById('detail-desc').innerText = p.summary;
+      document.getElementById('detail-status').innerText = `● ${p.status}`;
+      document.getElementById('detail-version').innerText = p.version;
+      document.getElementById('detail-overview-text').innerText = p.overview;
+      document.getElementById('github-repo-btn').href = p.githubUrl;
+
+      // Loom Embed
+      document.getElementById('loom-embed-box').innerHTML = `
+        <iframe src="https://www.loom.com/embed/${p.loomId}" 
+                webkitallowfullscreen mozallowfullscreen allowfullscreen>
+        </iframe>
+      `;
+
+      // Pipeline Steps
+      document.getElementById('detail-steps-list').innerHTML = p.pipelineSteps.map(step => `
+        <li class="step-item">${step}</li>
+      `).join('');
+    }
+
+    window.addEventListener('hashchange', handleRouting);
+    window.addEventListener('DOMContentLoaded', handleRouting);
+  </script>
+</body>
+</html>
