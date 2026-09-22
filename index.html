@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jervis // AI Automation Engineer</title>
+  <title>Jervis // AI Automation Specialist</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -638,15 +638,15 @@
         loomId: "cfe408a4bb984cd2bc69670fe070b53a",
         githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows",
         tech: ["n8n", "Groq LLM", "Gmail API", "Telegram Bot"],
-        overview: "An end-to-end autonomous email processing pipeline designed to reduce inbox overload[cite: 1]. The workflow continuously monitors Gmail for unread messages[cite: 1], leverages Groq LLM (openai/gpt-oss-20b) to analyze context[cite: 1], drafts polite HTML responses[cite: 1], and enforces human-in-the-loop validation through Telegram before sending[cite: 1].",
+        overview: "An end-to-end autonomous email management system engineered to eliminate inbox fatigue. The workflow continuously polls Gmail for new messages, analyzes tone and context using Groq LLM (GPT-20B), generates professionally formatted HTML drafts, and enforces a mandatory human-in-the-loop approval gate via Telegram before sending any email.",
         pipelineSteps: [
-  "<strong>1. Ingest & Poll:</strong> Automatically checks your Gmail inbox every minute for any new, unread messages.",
-  "<strong>2. AI Processing:</strong> Sends the email body to the Groq LLM (GPT-20B) to summarize the content, evaluate if a response is needed, and draft a polite HTML reply.",
-  "<strong>3. Decision Routing:</strong> Checks the AI's response. If no reply is needed, it sends a brief Telegram notification and finishes the task.",
-  "<strong>4. Draft Generation:</strong> If a reply is required, it automatically creates a new draft in Gmail linked directly to the original email thread.",
-  "<strong>5. Telegram Approval Gate:</strong> Sends an alert to your Telegram with the email summary and suggested reply, prompting you with [Approve] and [Disapprove] buttons.",
-  "<strong>6. Action Execution:</strong> If you tap <em>Approve</em> on Telegram, it dispatches the draft instantly via the Gmail API. If you tap <em>Disapprove</em>, it safely cancels without sending."
-]
+          "<strong>1. Ingest & Poll:</strong> Automatically checks your Gmail inbox every minute for any new, unread messages.",
+          "<strong>2. AI Processing:</strong> Sends the email body to the Groq LLM (GPT-20B) to summarize the content, evaluate if a response is needed, and draft a polite HTML reply.",
+          "<strong>3. Decision Routing:</strong> Checks the AI's response. If no reply is needed, it sends a brief Telegram notification and finishes the task.",
+          "<strong>4. Draft Generation:</strong> If a reply is required, it automatically creates a new draft in Gmail linked directly to the original email thread.",
+          "<strong>5. Telegram Approval Gate:</strong> Sends an alert to your Telegram with the email summary and suggested reply, prompting you with [Approve] and [Disapprove] buttons.",
+          "<strong>6. Action Execution:</strong> If you tap <em>Approve</em> on Telegram, it dispatches the draft instantly via the Gmail API. If you tap <em>Disapprove</em>, it safely cancels without sending."
+        ]
       }
     ];
 
