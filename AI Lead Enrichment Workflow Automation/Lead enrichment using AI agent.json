@@ -1,0 +1,1800 @@
+{
+  "name": "Lead enrichment using AI agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "251715e1-8c40-40b0-8dfb-bd6a08a120a1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "b7e19510-3e4a-44df-96b5-8f0ce8df9a5e",
+      "name": "Webhook",
+      "webhookId": "251715e1-8c40-40b0-8dfb-bd6a08a120a1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9826b653-2287-45d8-80a3-c0a8cd9d995b",
+              "leftValue": "={{ $json.body[\"I agree to be contacted about this inquiry.\"] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "14db637d-1e62-4187-b227-30357cdac017",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "Does Not Consent"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Note": "Submitted form, did not consent to contact",
+            "Full Name": "={{ $json.body[\"Full Name\"] }}",
+            "Work Email": "={{ $json.body[\"  Work Email  \"] }}",
+            "Company Name": "={{ $json.body[\"  Company Name  \"] }}",
+            "Date Submitted": "={{ $json.body.submittedAt.toDateTime().format('MM-dd-yyyy') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Submitted",
+              "displayName": "Date Submitted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Note",
+              "displayName": "Note",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        400
+      ],
+      "id": "c3c03249-af41-4fa8-b869-1a4adabc0430",
+      "name": "Add to did not consent table"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Enrich this B2B lead.\n\nFull Name: {{ $('Webhook').item.json.body['Full Name'] }}\nWork Email: {{ $('Webhook').item.json.body['  Work Email  '] }}\nCompany Name: {{ $('Webhook').item.json.body['  Company Name  '] }}\nPhone Number: {{ $('Webhook').item.json.body['  Phone Number  '] }}\nWhat are you looking to solve: {{ $('Webhook').item.json.body['  What are you looking to solve  '] }}\nDate Submitted: {{ $('Webhook').item.json.body['submittedAt'] }}\n\nEmail validation:\nStatus: {{ $json.status }}\nScore: {{ $json.score }}\nMX records: {{ $json.mx_records }}\nSMTP check: {{ $json.smtp_check }}\nDisposable: {{ $json.disposable }}\nWebmail: {{ $json.webmail }}\n\nUse Search 1 to verify the person and company.\n\nUse Search 2 to verify company size if Search 1 did not provide reliable company-size information.\n\nReturn only the required structured fields.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a B2B lead enrichment agent.\n\nYour job is to verify the supplied lead and return ONLY the required structured fields.\n\nSEARCH PLAN:\n\nYou have a maximum of 2 web searches.\n\nSearch 1:\nVerify the supplied person's identity, company, and job title.\nSearch using the person's full name and company.\n\nSearch 2:\nVerify the company's size.\nSearch using the company name and employee count/company size.\n\nIf Search 1 already provides reliable company-size information, do not perform Search 2.\n\nDo not repeat searches.\nDo not search for optional information that is not required in the output.\nStop searching after sufficient evidence is found.\n\nVERIFICATION:\n\n- Never guess or invent information.\n- Never substitute another person with a similar name.\n- A valid or deliverable email does not prove identity or employment.\n- The supplied name is the primary identity.\n- Only associate the person with the company when the search evidence supports it.\n- Prefer official company sources and reliable professional sources.\n- If the person's identity or employment cannot be verified, do not infer it.\n- If company size cannot be reliably verified, use \"Unknown\".\n- Do not estimate company size.\n- Use the supplied business problem exactly as the primary need.\n- Do not invent a different business problem.\n- Phone Number should be null if not supplied or verified.\n\nLEAD SCORE:\n\nLead Score must be exactly:\nHigh\nMedium\nLow\n\nHigh:\nThe person's identity/company relationship is verified, the supplied business need is relevant, and there is strong potential for automation.\n\nMedium:\nThere is a plausible business opportunity but important information remains uncertain.\n\nLow:\nThe person/company relationship or other important qualification information cannot be reliably verified.\n\nScore Reasoning:\nGive a brief factual explanation of the score.\nMention important uncertainty when relevant.\nDo not provide hidden reasoning or a long explanation.\n\nCOMPANY SIZE:\n\nUse a reliable employee count or company-size range when available.\n\nExamples:\n\"500–1,000 employees\"\n\"1,000–5,000 employees\"\n\"5,000+ employees\"\n\nDo not convert an uncertain estimate into a precise number.\n\nIf no reliable company-size information is found, return:\n\"Unknown\"\n\nOUTPUT:\n\nReturn ONLY these fields:\n\nFull Name\nWork Email\nCompany Name\nPhone Number\nWhat are you looking to solve\nLead Score\nScore Reasoning\nEnriched Company Size\nDate Submitted\n\nDo not return job title, website, industry, sources, or any other fields.\n\nDo not output markdown.\nDo not explain the search process.\nDo not explain your reasoning.\nReturn only the structured result.\n",
+          "maxIterations": 6
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1184,
+        -112
+      ],
+      "id": "406ac50c-0c5d-4ac3-97c7-f0381b6c743e",
+      "name": "AI Agent",
+      "executeOnce": false,
+      "retryOnFail": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "emailVerifier",
+        "email": "={{ $json.body[\"  Work Email  \"] }}"
+      },
+      "type": "n8n-nodes-base.hunter",
+      "typeVersion": 1,
+      "position": [
+        448,
+        208
+      ],
+      "id": "6fa754d9-a231-42f0-b92a-2f9de1e3ad8b",
+      "name": "Verify email deliverability"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6c9f1595-ef6e-46d9-b68a-18b7b272be56",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "=deliverable",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        144
+      ],
+      "id": "c145685f-5ea3-4784-ae8f-dc5e1fc8c80b",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "Does Not Consent"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json.body[\"Full Name\"] }}",
+            "Work Email": "={{ $json.body[\"  Work Email  \"] }}",
+            "Company Name": "={{ $json.body[\"  Company Name  \"] }}",
+            "Date Submitted": "={{ $json.body.submittedAt.toDateTime().format('MM-dd-yyyy') }}",
+            "Note": "Email undeliverable"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Submitted",
+              "displayName": "Date Submitted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Note",
+              "displayName": "Note",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        288
+      ],
+      "id": "b0895005-9001-46f7-80e6-0ccbb36fc10a",
+      "name": "Email undeliverable"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "body[\"  Work Email  \"]",
+              "field2": "email"
+            }
+          ]
+        },
+        "joinMode": "keepEverything",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        672,
+        144
+      ],
+      "id": "2cfa1e59-6e62-4e47-9872-12cbc498120b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=Search the web for lead verification.\n\nThe query should be one concise search query.\n\nFor person verification, search the person's full name and company.\n\nFor company-size verification, search the company name with employee count or company size.\n\nReturn the search results to the AI Agent.\n",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"api_key\": \"YOUR_TAVILY_API_KEY\",\n  \"query\": \"={{ $fromAI('query', 'Create one concise web search query for the current verification task. Use the persons full name and company for identity verification, or the company name and employee count for company-size verification.') }}\",\n  \"search_depth\": \"basic\",\n  \"max_results\": 2,\n  \"include_answer\": false\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1256,
+        120
+      ],
+      "id": "959bf5c9-8f9c-44be-b5fb-b6781a34cc05",
+      "name": "Internet Research"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"Full Name\": {\n      \"type\": \"string\"\n    },\n    \"Work Email\": {\n      \"type\": \"string\"\n    },\n    \"Company Name\": {\n      \"type\": \"string\"\n    },\n    \"Phone Number\": {\n      \"type\": [\"string\", \"null\"]\n    },\n    \"What are you looking to solve\": {\n      \"type\": \"string\"\n    },\n    \"Lead Score\": {\n      \"type\": \"string\",\n      \"enum\": [\"High\", \"Medium\", \"Low\"]\n    },\n    \"Score Reasoning\": {\n      \"type\": \"string\"\n    },\n    \"Enriched Company Size\": {\n      \"type\": \"string\"\n    },\n    \"Date Submitted\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"Full Name\",\n    \"Work Email\",\n    \"Company Name\",\n    \"Phone Number\",\n    \"What are you looking to solve\",\n    \"Lead Score\",\n    \"Score Reasoning\",\n    \"Enriched Company Size\",\n    \"Date Submitted\"\n  ],\n  \"additionalProperties\": false\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1384,
+        120
+      ],
+      "id": "42258cbc-8f95-43c9-90b8-b8181fef85da",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {
+          "maxTokensToSample": 5000,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1128,
+        120
+      ],
+      "id": "114c9bd6-5622-47b7-a9a3-2c3d64d246ec",
+      "name": "Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output[\"Lead Score\"] }}",
+                    "rightValue": "Low",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6cf46ed6-82d4-42f2-b7d1-679f1f35bee6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LOW value lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b3da3a6c-4497-4c7e-8075-a09238e7b0a7",
+                    "leftValue": "={{ $json.output[\"Lead Score\"] }}",
+                    "rightValue": "Medium",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Medium value lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d95c7a03-6c56-47d7-9e56-5223f9a7b6c2",
+                    "leftValue": "={{ $json.output[\"Lead Score\"] }}",
+                    "rightValue": "High",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "High value lead"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1584,
+        -16
+      ],
+      "id": "519d1efe-87f1-4a01-9484-6ce59bfa28af",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "All Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Low priority",
+            "Full Name": "={{ $json.output[\"Full Name\"] }}",
+            "Work Email": "={{ $json.output[\"Work Email\"] }}",
+            "Company Name": "={{ $json.output[\"Company Name\"] }}",
+            "Phone Number": "={{ $json.output[\"Phone Number\"] }}",
+            "What are you looking to solve": "={{ $json.output[\"What are you looking to solve\"] }}",
+            "Lead Score": "={{ $json.output[\"Lead Score\"] }}",
+            "Score Reasoning": "={{ $json.output[\"Score Reasoning\"] }}",
+            "Enriched Company Size": "={{ $json.output[\"Enriched Company Size\"] }}",
+            "Date Submitted": "={{ $json.output[\"Date Submitted\"].toDateTime().format('MM-dd-yyyy')}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What are you looking to solve",
+              "displayName": "What are you looking to solve",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Manual, repetitive tasks eating up team time",
+                  "value": "Manual, repetitive tasks eating up team time"
+                },
+                {
+                  "name": "Slow or inconsistent customer support response",
+                  "value": "Slow or inconsistent customer support response"
+                },
+                {
+                  "name": "Losing leads due to slow follow-up",
+                  "value": "Losing leads due to slow follow-up"
+                },
+                {
+                  "name": "Disconnected tools/data across departments",
+                  "value": "Disconnected tools/data across departments"
+                },
+                {
+                  "name": "Scaling operations without adding headcount",
+                  "value": "Scaling operations without adding headcount"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score Reasoning",
+              "displayName": "Score Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Enriched Company Size",
+              "displayName": "Enriched Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Submitted",
+              "displayName": "Date Submitted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Disqualified",
+                  "value": "Disqualified"
+                },
+                {
+                  "name": "Low priority",
+                  "value": "Low priority"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        -96
+      ],
+      "id": "83320938-3235-4215-84c6-2c430e712bc1",
+      "name": "Added to db with low priority status"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "message": "=Here is a Lead for you to review:\n\nFull name: {{ $json.fields['Full Name'] }}\nEmail: {{ $json.fields['Work Email'] }}\nCompany name: {{ $json.fields['Company Name'] }}\nPhone number: {{ $json.fields['Phone Number'] }}\nWhat are they trying to solve: {{ $json.fields['What are you looking to solve'] }}\nLead Score: {{ $json.fields['Lead Score'] }}\nAI score reasoning: {{ $json.fields['Score Reasoning'] }}\nEnriched Company size: {{ $json.fields['Enriched Company Size'] }}\nDate Submitted: {{ $json.fields['Date Submitted'] }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2032,
+        96
+      ],
+      "id": "eb893982-a309-4569-b2be-d6a32344ccae",
+      "name": "Send message and wait for response",
+      "webhookId": "beb7b9c0-9840-4936-a973-a26009c45a30"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3fcd39e4-319d-456f-88e5-aaa3efb79282",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2256,
+        96
+      ],
+      "id": "b12566b3-cb18-4101-8b92-be3662848384",
+      "name": "Approved or Disaaproved?"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "All Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "New",
+            "Full Name": "={{ $json.output[\"Full Name\"] }}",
+            "Work Email": "={{ $json.output[\"Work Email\"] }}",
+            "Company Name": "={{ $json.output[\"Company Name\"] }}",
+            "Phone Number": "={{ $json.output[\"Phone Number\"] }}",
+            "What are you looking to solve": "={{ $json.output[\"What are you looking to solve\"] }}",
+            "Lead Score": "={{ $json.output[\"Lead Score\"] }}",
+            "Score Reasoning": "={{ $json.output[\"Score Reasoning\"] }}",
+            "Enriched Company Size": "={{ $json.output[\"Enriched Company Size\"] }}",
+            "Date Submitted": "={{ $json.output[\"Date Submitted\"].toDateTime().format('MM-dd-yyyy')}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What are you looking to solve",
+              "displayName": "What are you looking to solve",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Manual, repetitive tasks eating up team time",
+                  "value": "Manual, repetitive tasks eating up team time"
+                },
+                {
+                  "name": "Slow or inconsistent customer support response",
+                  "value": "Slow or inconsistent customer support response"
+                },
+                {
+                  "name": "Losing leads due to slow follow-up",
+                  "value": "Losing leads due to slow follow-up"
+                },
+                {
+                  "name": "Disconnected tools/data across departments",
+                  "value": "Disconnected tools/data across departments"
+                },
+                {
+                  "name": "Scaling operations without adding headcount",
+                  "value": "Scaling operations without adding headcount"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score Reasoning",
+              "displayName": "Score Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Enriched Company Size",
+              "displayName": "Enriched Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Submitted",
+              "displayName": "Date Submitted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Disqualified",
+                  "value": "Disqualified"
+                },
+                {
+                  "name": "Low priority",
+                  "value": "Low priority"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        96
+      ],
+      "id": "1dd93c36-7584-47d2-8712-70b0cac4ee7b",
+      "name": "Add to DB with status NEW"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "All Leads"
+        },
+        "filterByFormula": "{Status} = \"New\"",
+        "returnAll": false,
+        "options": {
+          "view": {
+            "__rl": true,
+            "value": "YOUR_AIRTABLE_VIEW_ID",
+            "mode": "id",
+            "cachedResultName": "Grid view"
+          }
+        },
+        "sort": {
+          "property": []
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        0
+      ],
+      "id": "35389b54-7cd4-4b20-98ec-e12fbd132869",
+      "name": "Search records"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "All Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json.fields[\"Full Name\"] }}",
+            "Work Email": "={{ $json.fields[\"Work Email\"] }}",
+            "Company Name": "={{ $json.fields[\"Company Name\"] }}",
+            "What are you looking to solve": "={{ $json.fields[\"What are you looking to solve\"] }}",
+            "Lead Score": "={{ $json.fields[\"Lead Score\"] }}",
+            "Score Reasoning": "={{ $json.fields[\"Score Reasoning\"] }}",
+            "Enriched Company Size": "={{ $json.fields[\"Enriched Company Size\"] }}",
+            "Date Submitted": "={{ $json.fields[\"Date Submitted\"].toDateTime().format('MM-dd-yyyy') }}",
+            "Status": "Qualified",
+            "id": "={{ $json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What are you looking to solve",
+              "displayName": "What are you looking to solve",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Manual, repetitive tasks eating up team time",
+                  "value": "Manual, repetitive tasks eating up team time"
+                },
+                {
+                  "name": "Slow or inconsistent customer support response",
+                  "value": "Slow or inconsistent customer support response"
+                },
+                {
+                  "name": "Losing leads due to slow follow-up",
+                  "value": "Losing leads due to slow follow-up"
+                },
+                {
+                  "name": "Disconnected tools/data across departments",
+                  "value": "Disconnected tools/data across departments"
+                },
+                {
+                  "name": "Scaling operations without adding headcount",
+                  "value": "Scaling operations without adding headcount"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score Reasoning",
+              "displayName": "Score Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Enriched Company Size",
+              "displayName": "Enriched Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Submitted",
+              "displayName": "Date Submitted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Disqualified",
+                  "value": "Disqualified"
+                },
+                {
+                  "name": "Low priority",
+                  "value": "Low priority"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2704,
+        0
+      ],
+      "id": "f7bb3113-4d32-448d-b3f2-57a00435bd2f",
+      "name": "Update lead status to QUALIFIED"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "All Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json.fields[\"Full Name\"] }}",
+            "Work Email": "={{ $json.fields[\"Work Email\"] }}",
+            "Company Name": "={{ $json.fields[\"Company Name\"] }}",
+            "What are you looking to solve": "={{ $json.fields[\"What are you looking to solve\"] }}",
+            "Lead Score": "={{ $json.fields[\"Lead Score\"] }}",
+            "Score Reasoning": "={{ $json.fields[\"Score Reasoning\"] }}",
+            "Enriched Company Size": "={{ $json.fields[\"Enriched Company Size\"] }}",
+            "Date Submitted": "={{ $json.fields[\"Date Submitted\"].toDateTime().format('MM-dd-yyyy') }}",
+            "Status": "Disqualified",
+            "id": "={{ $json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Work Email",
+              "displayName": "Work Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "What are you looking to solve",
+              "displayName": "What are you looking to solve",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Manual, repetitive tasks eating up team time",
+                  "value": "Manual, repetitive tasks eating up team time"
+                },
+                {
+                  "name": "Slow or inconsistent customer support response",
+                  "value": "Slow or inconsistent customer support response"
+                },
+                {
+                  "name": "Losing leads due to slow follow-up",
+                  "value": "Losing leads due to slow follow-up"
+                },
+                {
+                  "name": "Disconnected tools/data across departments",
+                  "value": "Disconnected tools/data across departments"
+                },
+                {
+                  "name": "Scaling operations without adding headcount",
+                  "value": "Scaling operations without adding headcount"
+                },
+                {
+                  "name": "Other",
+                  "value": "Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Low",
+                  "value": "Low"
+                },
+                {
+                  "name": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "name": "High",
+                  "value": "High"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score Reasoning",
+              "displayName": "Score Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Enriched Company Size",
+              "displayName": "Enriched Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Submitted",
+              "displayName": "Date Submitted",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Disqualified",
+                  "value": "Disqualified"
+                },
+                {
+                  "name": "Low priority",
+                  "value": "Low priority"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2704,
+        192
+      ],
+      "id": "e960cc20-affc-44ca-b856-798fe62e2c0b",
+      "name": "Update lead status to DISQUALIFIED"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "id",
+          "cachedResultName": "Automation Audit"
+        },
+        "table": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "All Leads"
+        },
+        "filterByFormula": "{Status} = \"New\"",
+        "returnAll": false,
+        "options": {
+          "view": {
+            "__rl": true,
+            "value": "YOUR_AIRTABLE_VIEW_ID",
+            "mode": "id",
+            "cachedResultName": "Grid view"
+          }
+        },
+        "sort": {
+          "property": []
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        192
+      ],
+      "id": "8d2dd158-83a0-4c58-92f2-30c1c3846f9b",
+      "name": "Search added record"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Verify email deliverability",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to did not consent table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify email deliverability": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email undeliverable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internet Research": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Added to db with low priority status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to DB with status NEW",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to DB with status NEW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Approved or Disaaproved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved or Disaaproved?": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search added record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to DB with status NEW": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Update lead status to QUALIFIED",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search added record": {
+      "main": [
+        [
+          {
+            "node": "Update lead status to DISQUALIFIED",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "nodeGroups": [],
+  "tags": []
+}
