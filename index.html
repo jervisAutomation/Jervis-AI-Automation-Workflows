@@ -647,6 +647,27 @@
           "<strong>5. Telegram Approval Gate:</strong> Sends an alert to your Telegram with the email summary and suggested reply, prompting you with [Approve] and [Disapprove] buttons.",
           "<strong>6. Action Execution:</strong> If you tap <em>Approve</em> on Telegram, it dispatches the draft instantly via the Gmail API. If you tap <em>Disapprove</em>, it safely cancels without sending."
         ]
+      },
+      {
+        id: "lead-enrichment",
+        title: "AI Lead Enrichment Workflow",
+        summary: "Takes a new contact-form lead, checks the email is real, researches the person and company with an AI agent, scores the lead, and asks me on Telegram before the final decision lands in Airtable.",
+        status: "Working Demo",
+        version: "n8n",
+        loomId: "f35bb16bb6d140b0beaa29469ad35eff",
+        githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows/tree/main/AI%20Lead%20Enrichment%20Workflow%20Automation",
+        tech: ["n8n", "Groq LLM", "Tavily Search", "Hunter", "Airtable", "Telegram Bot"],
+        overview: "Anyone who runs a contact form knows the routine: some leads are great, some are typos or bots, and every one needs someone to google the name and company before deciding if it's worth a reply. I built this workflow to do that boring first pass. It checks consent, verifies the email, lets an AI agent research the person and company on the web, scores the lead, and then leaves the final yes or no to a human on Telegram.",
+        pipelineSteps: [
+          "<strong>1. Form Submission:</strong> A webhook catches every new contact-form submission: name, work email, company, phone number, what they want to solve, and whether they agreed to be contacted.",
+          "<strong>2. Consent Check:</strong> If the person didn't tick the consent box, they're logged in a separate Airtable table and the workflow stops there. No research, no follow-up.",
+          "<strong>3. Email Verification:</strong> Hunter checks whether the email can actually receive mail. Undeliverable addresses get logged with a note and skipped, so no time is wasted on them.",
+          "<strong>4. AI Research:</strong> A Groq-powered agent uses Tavily web search, up to two searches only. First it checks that the person really works at that company, then it looks up the company size. It's told never to guess, so anything it can't verify comes back as <em>Unknown</em>.",
+          "<strong>5. Lead Scoring:</strong> The agent returns a fixed, structured result: a High, Medium or Low score, a short reason for it, and the company size. Keeping the format strict means the rest of the workflow never has to interpret free text.",
+          "<strong>6. Smart Routing:</strong> Low-scoring leads go straight into Airtable as <em>Low priority</em>, with no human time spent. Medium and High leads are saved as <em>New</em> and sent on for review.",
+          "<strong>7. Telegram Approval Gate:</strong> I get a Telegram message with the lead's details, the score and the AI's reasoning, with [Approve] and [Disapprove] buttons. The workflow waits until I answer.",
+          "<strong>8. Final Status:</strong> If I tap <em>Approve</em>, the lead is marked <em>Qualified</em> in Airtable. If I tap <em>Disapprove</em>, it's marked <em>Disqualified</em>."
+        ]
       }
     ];
 
