@@ -4,8 +4,8 @@ An n8n workflow that takes a raw contact-form submission, checks that the lead i
 
 I built this as a practical project to get comfortable with AI agents, tool calling, and human-in-the-loop approvals in n8n.
 
-<img width="1365" height="619" alt="image" src="<img width="1365" height="685" alt="ai lead enrichment" src="https://github.com/user-attachments/assets/1f37b838-e0cd-4f07-890f-ca3cb2cd33bd" />
-" />
+src="<img width="1365" height="629" alt="ai pt2" src="https://github.com/user-attachments/assets/8559e1f8-14c0-461d-a728-06c7b6f692c9" />
+
 
 ## The problem
 
