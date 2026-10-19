@@ -3,883 +3,701 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jervis // AI Automation Specialist</title>
+  <title>Jervis Tangoan | AI Automation Specialist (n8n, LLMs, APIs)</title>
+  <meta name="description" content="Jervis Tangoan builds practical AI automation workflows with n8n, LLMs and APIs: email assistants, lead qualification and customer support chatbots with a human in control.">
+  <meta name="theme-color" content="#0b1017">
+  <meta property="og:title" content="Jervis Tangoan | AI Automation Specialist">
+  <meta property="og:description" content="Practical AI workflows for email, lead qualification and customer support, built with n8n, LLMs and APIs.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1017'/%3E%3Cpath d='M20 18v18a8 8 0 0 0 16 0V18' fill='none' stroke='%2300e08a' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #06090e;
-      --card-bg: rgba(15, 20, 28, 0.75);
-      --card-border: #1f293d;
-      --green: #00ff66;
-      --green-glow: rgba(0, 255, 102, 0.4);
-      --cyan: #00e5ff;
-      --cyan-glow: rgba(0, 229, 255, 0.4);
-      --purple: #bd00ff;
-      --purple-glow: rgba(189, 0, 255, 0.4);
-      --yellow: #ffb703;
-      --red: #ff4757;
-      --text: #c9d1d9;
-      --text-dim: #7d8590;
-      --text-white: #ffffff;
-      --font-mono: 'JetBrains Mono', monospace;
-      --font-heading: 'Space Grotesk', sans-serif;
+      --bg: #0b1017;
+      --bg-soft: #0f1620;
+      --surface: #131b27;
+      --surface-2: #182233;
+      --border: #243247;
+      --accent: #00e08a;
+      --accent-strong: #00c77a;
+      --accent-soft: rgba(0, 224, 138, 0.12);
+      --blue: #4cc9f0;
+      --text: #d5dce6;
+      --text-dim: #93a1b5;
+      --white: #ffffff;
+      --radius: 14px;
+      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
     body {
-      background-color: var(--bg);
+      background: var(--bg);
+      background-image:
+        radial-gradient(900px 420px at 85% -10%, rgba(0,224,138,.10), transparent 60%),
+        radial-gradient(700px 380px at -10% 10%, rgba(76,201,240,.08), transparent 60%);
+      background-repeat: no-repeat;
       color: var(--text);
-      font-family: var(--font-mono);
-      line-height: 1.6;
-      padding-bottom: 60px;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Interactive Matrix Canvas Background */
-    #bg-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -2;
-      opacity: 0.18;
-      pointer-events: none;
-    }
-
-    /* Dynamic Glow Orbs */
-    .glow-orb {
-      position: fixed;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      filter: blur(140px);
-      z-index: -1;
-      pointer-events: none;
-      animation: float 12s infinite alternate ease-in-out;
-    }
-
-    .glow-1 {
-      top: -100px;
-      left: -100px;
-      background: var(--green-glow);
-    }
-
-    .glow-2 {
-      bottom: -100px;
-      right: -100px;
-      background: var(--cyan-glow);
-      animation-delay: -6s;
-    }
-
-    @keyframes float {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(60px, 40px) scale(1.15); }
-    }
-
-    /* Terminal Scanlines Accent */
-    body::before {
-      content: " ";
-      display: block;
-      position: fixed;
-      top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
-      background-size: 100% 4px;
-      z-index: 99;
-      pointer-events: none;
-      opacity: 0.4;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    header {
-      padding: 30px 0 20px 0;
-      border-bottom: 1px solid var(--card-border);
-      margin-bottom: 40px;
-      backdrop-filter: blur(8px);
-    }
-
-    .nav-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-weight: 800;
-      font-size: 1.3rem;
-      color: var(--green);
-      text-decoration: none;
-      letter-spacing: -0.5px;
-      text-shadow: 0 0 10px var(--green-glow);
-      transition: all 0.3s ease;
-    }
-
-    .logo:hover {
-      text-shadow: 0 0 20px var(--green);
-    }
-
-    .logo span {
-      color: var(--text-white);
-    }
-
-    .social-links a {
-      color: var(--text-dim);
-      text-decoration: none;
-      margin-left: 20px;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .social-links a:hover {
-      color: var(--cyan);
-      text-shadow: 0 0 10px var(--cyan-glow);
-    }
-
-    /* Animated Status Chip */
-    .system-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0, 255, 102, 0.08);
-      border: 1px solid rgba(0, 255, 102, 0.3);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      color: var(--green);
-      margin-bottom: 16px;
-    }
-
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background-color: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--green);
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 255, 102, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 102, 0); }
-    }
-
-    /* Route Container Control */
-    .view-page {
-      display: none;
-      opacity: 0;
-      transform: translateY(15px);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .view-page.active {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Breadcrumbs */
-    .breadcrumb {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      margin-bottom: 24px;
-    }
-
-    .breadcrumb a {
-      color: var(--cyan);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .breadcrumb a:hover {
-      color: var(--green);
-      text-decoration: underline;
-    }
-
-    /* Catalog Page */
-    .catalog-header h1 {
-      font-family: var(--font-heading);
-      font-size: 2.5rem;
-      color: var(--text-white);
-      margin-bottom: 8px;
-      letter-spacing: -1px;
-    }
-
-    .catalog-header p {
-      color: var(--text-dim);
-      font-size: 1.05rem;
-    }
-
-    /* About Box */
-    .about-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-left: 3px solid var(--green);
-      border-radius: 8px;
-      padding: 20px 24px;
-      margin: 24px 0 36px 0;
-      backdrop-filter: blur(10px);
-    }
-
-    .about-box p {
-      color: var(--text);
+      font-family: var(--font);
       font-size: 1rem;
       line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
     }
+    a { color: inherit; }
+    img, iframe { max-width: 100%; }
+    .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .skip-link { position: absolute; left: -999px; top: 8px; background: var(--accent); color: #04120b; padding: 8px 14px; border-radius: 8px; z-index: 300; font-weight: 600; }
+    .skip-link:focus { left: 12px; }
 
-    .about-box strong {
-      color: var(--green);
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 100; background: rgba(11,16,23,.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 68px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; color: var(--white); }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--accent-soft); border: 1px solid rgba(0,224,138,.4); color: var(--accent); font-family: var(--mono); font-size: .95rem; }
+    .brand small { display: block; color: var(--text-dim); font-size: .72rem; font-weight: 500; line-height: 1.2; }
+    .nav-links { display: flex; align-items: center; gap: 22px; }
+    .nav-links a:not(.btn) { text-decoration: none; color: var(--text-dim); font-size: .92rem; font-weight: 500; }
+    .nav-links a:not(.btn):hover { color: var(--white); }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 20px; border-radius: 10px; border: 1px solid transparent; font: 600 .95rem var(--font); text-decoration: none; cursor: pointer; transition: transform .15s ease, background .2s ease, border-color .2s ease; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #03140c; }
+    .btn-primary:hover { background: #2cf0a2; }
+    .btn-ghost { background: transparent; color: var(--white); border-color: #36475f; }
+    .btn-ghost:hover { border-color: var(--blue); background: rgba(76,201,240,.08); }
+    .btn-sm { min-height: 40px; padding: 7px 16px; font-size: .88rem; }
+
+    /* Views */
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn .35s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* Hero */
+    .hero { padding: 64px 0 40px; }
+    .availability { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid rgba(0,224,138,.35); background: var(--accent-soft); border-radius: 999px; font-size: .82rem; color: var(--accent); font-weight: 600; }
+    .availability i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(0,224,138,.6); animation: pulse 2s infinite; }
+    @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(0,224,138,0); } 100% { box-shadow: 0 0 0 0 rgba(0,224,138,0); } }
+    .hero h1 { margin: 20px 0 16px; color: var(--white); font-size: clamp(2.1rem, 5.5vw, 3.6rem); line-height: 1.1; letter-spacing: -1.2px; font-weight: 800; max-width: 860px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p.lead { max-width: 680px; font-size: 1.12rem; color: var(--text); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 30px; color: var(--text-dim); font-size: .9rem; }
+    .hero-meta span::before { content: "✓"; color: var(--accent); margin-right: 8px; font-weight: 700; }
+
+    /* Sections */
+    section.block { padding: 48px 0; }
+    .eyebrow { display: block; margin-bottom: 10px; color: var(--accent); font: 700 .74rem var(--mono); letter-spacing: 1.6px; text-transform: uppercase; }
+    h2.title { color: var(--white); font-size: clamp(1.55rem, 3.4vw, 2.1rem); line-height: 1.2; letter-spacing: -.5px; font-weight: 700; }
+    .section-intro { max-width: 640px; margin-top: 10px; color: var(--text-dim); }
+    .section-head { margin-bottom: 30px; }
+
+    /* Services */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .info-card { padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .info-card .ico { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 14px; border-radius: 10px; background: var(--accent-soft); font-size: 1.2rem; }
+    .info-card h3 { color: var(--white); font-size: 1.05rem; margin-bottom: 6px; }
+    .info-card p { color: var(--text-dim); font-size: .93rem; }
+
+    /* About */
+    .about { display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items: start; }
+    .about-text p + p { margin-top: 14px; }
+    .about-text strong { color: var(--white); }
+    .panel { padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .panel h3 { color: var(--white); font-size: 1rem; margin-bottom: 12px; }
+    .check-list { list-style: none; display: grid; gap: 10px; }
+    .check-list li { position: relative; padding-left: 26px; font-size: .94rem; }
+    .check-list li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+    /* Project cards */
+    .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .project-card { display: flex; flex-direction: column; padding: 26px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+    .project-card:hover { transform: translateY(-4px); border-color: rgba(0,224,138,.55); box-shadow: 0 18px 40px -22px rgba(0,224,138,.45); }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 999px; background: rgba(76,201,240,.1); border: 1px solid rgba(76,201,240,.3); color: var(--blue); font: 600 .72rem var(--mono); }
+    .status-pill { font-size: .75rem; color: var(--accent); font-weight: 600; }
+    .project-card h3 { color: var(--white); font-size: 1.25rem; line-height: 1.3; margin-bottom: 10px; }
+    .project-card .plain { color: var(--text); font-size: .95rem; margin-bottom: 14px; }
+    .card-facts { list-style: none; display: grid; gap: 6px; margin-bottom: 18px; font-size: .88rem; color: var(--text-dim); }
+    .card-facts li { padding-left: 18px; position: relative; }
+    .card-facts li::before { content: "•"; position: absolute; left: 4px; color: var(--accent); }
+    .card-foot { margin-top: auto; }
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .pill { padding: 2px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); font-size: .76rem; color: var(--text-dim); }
+    .card-link { color: var(--accent); font-weight: 600; font-size: .92rem; }
+    .project-card:hover .card-link span { display: inline-block; transform: translateX(4px); }
+    .card-link span { transition: transform .2s ease; }
+
+    /* How it works */
+    .steps-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; counter-reset: s; }
+    .step-mini { position: relative; padding: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .step-mini::before { counter-increment: s; content: "0" counter(s); display: block; margin-bottom: 10px; color: var(--accent); font: 700 .85rem var(--mono); }
+    .step-mini h3 { color: var(--white); font-size: 1rem; margin-bottom: 6px; }
+    .step-mini p { color: var(--text-dim); font-size: .9rem; }
+
+    /* Detail page */
+    .crumbs { padding: 28px 0 8px; font-size: .88rem; color: var(--text-dim); }
+    .crumbs a { color: var(--blue); text-decoration: none; }
+    .crumbs a:hover { text-decoration: underline; }
+    .detail-head { padding: 12px 0 26px; }
+    .detail-head h1 { margin: 12px 0; color: var(--white); font-size: clamp(1.9rem, 4.6vw, 2.9rem); line-height: 1.15; letter-spacing: -.8px; font-weight: 800; }
+    .detail-head .lead { max-width: 760px; font-size: 1.08rem; }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: #000; box-shadow: 0 24px 60px -30px rgba(0,0,0,.9); }
+    .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .video-note { margin-top: 10px; font-size: .85rem; color: var(--text-dim); }
+    .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; margin-top: 34px; align-items: start; }
+    .detail-main > section + section { margin-top: 34px; }
+    .detail-main h2 { color: var(--white); font-size: 1.35rem; margin-bottom: 14px; letter-spacing: -.3px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .callout { padding: 20px 22px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+    .callout h3 { margin-bottom: 6px; font-size: .78rem; font-family: var(--mono); letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); }
+    .callout p { font-size: .96rem; }
+    .callout.alt h3 { color: var(--blue); }
+    .timeline { list-style: none; position: relative; display: grid; gap: 14px; }
+    .timeline li { position: relative; padding: 18px 20px 18px 66px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .timeline .num { position: absolute; left: 18px; top: 18px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); border: 1px solid rgba(0,224,138,.45); color: var(--accent); font: 700 .88rem var(--mono); }
+    .timeline h3 { color: var(--white); font-size: 1rem; margin-bottom: 4px; }
+    .timeline p { color: var(--text-dim); font-size: .93rem; }
+    .timeline .tech-note { display: block; margin-top: 8px; font: 500 .78rem var(--mono); color: var(--blue); }
+    .outcome-list { list-style: none; display: grid; gap: 12px; }
+    .outcome-list li { position: relative; padding: 14px 16px 14px 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    .outcome-list li::before { content: "✓"; position: absolute; left: 16px; top: 14px; color: var(--accent); font-weight: 800; }
+    .outcome-list strong { color: var(--white); }
+    .tech-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-size: .92rem; }
+    .tech-table th, .tech-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .tech-table tr:last-child td { border-bottom: 0; }
+    .tech-table th { width: 34%; color: var(--white); font-weight: 600; }
+    .tech-table td { color: var(--text-dim); }
+    .sidebar { position: sticky; top: 90px; display: grid; gap: 16px; }
+    .side-card { padding: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .side-card h3 { color: var(--white); font-size: 1rem; margin-bottom: 10px; }
+    .side-card .btn { width: 100%; margin-top: 14px; }
+    .side-card p { font-size: .92rem; color: var(--text-dim); }
+    .quick-facts { list-style: none; display: grid; gap: 12px; font-size: .9rem; }
+    .quick-facts b { display: block; color: var(--white); font-size: .75rem; font-family: var(--mono); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+    .more-projects { margin-top: 46px; padding-top: 26px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    /* Contact */
+    .contact { margin-top: 30px; padding: clamp(24px, 5vw, 48px); border: 1px solid var(--border); border-radius: 20px; background: linear-gradient(135deg, rgba(0,224,138,.08), rgba(76,201,240,.05)), var(--surface); display: grid; grid-template-columns: 1fr 1.1fr; gap: 36px; }
+    .contact h2 { color: var(--white); font-size: clamp(1.6rem, 3.6vw, 2.2rem); line-height: 1.2; letter-spacing: -.5px; margin-bottom: 12px; }
+    .contact-copy p { color: var(--text); }
+    .contact-methods { display: grid; gap: 12px; margin-top: 22px; }
+    .method { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(11,16,23,.55); text-decoration: none; }
+    .method:hover { border-color: var(--accent); }
+    .method .m-ico { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px; background: var(--accent-soft); flex: none; }
+    .method small { display: block; color: var(--text-dim); font-size: .76rem; line-height: 1.2; }
+    .method span.v { color: var(--white); font-weight: 600; overflow-wrap: anywhere; font-size: .95rem; }
+    .copy-btn { margin-left: auto; flex: none; border: 1px solid #36475f; background: transparent; color: var(--text); border-radius: 8px; padding: 6px 12px; font: 600 .8rem var(--font); cursor: pointer; }
+    .copy-btn:hover { border-color: var(--blue); color: var(--white); }
+    form.contact-form { display: grid; gap: 14px; align-content: start; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-size: .85rem; font-weight: 600; color: var(--white); }
+    .field input, .field select, .field textarea { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #36475f; background: #0c131d; color: var(--white); font: 400 .96rem var(--font); }
+    .field textarea { min-height: 120px; resize: vertical; }
+    .field input::placeholder, .field textarea::placeholder { color: #6b7a90; }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: transparent; }
+    .form-note { font-size: .82rem; color: var(--text-dim); }
+    .form-feedback { min-height: 1.4em; font-size: .88rem; color: var(--accent); }
+    .two-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    footer { margin-top: 60px; padding: 28px 0 90px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: .88rem; }
+    .foot-inner { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    footer a { text-decoration: none; }
+    footer a:hover { color: var(--blue); }
+
+    /* Mobile sticky contact bar */
+    .mobile-bar { display: none; }
+
+    @media (max-width: 960px) {
+      .grid-3, .project-grid { grid-template-columns: 1fr 1fr; }
+      .steps-row { grid-template-columns: 1fr 1fr; }
+      .about, .contact { grid-template-columns: 1fr; }
+      .detail-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
     }
-
-    .project-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 28px;
-      margin-top: 24px;
-    }
-
-    /* Gamified Cyber Cards */
-    .project-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 28px;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(12px);
-      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 10px 30px -15px rgba(0,0,0,0.5);
-    }
-
-    .project-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--green), var(--cyan), var(--purple));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .project-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: rgba(0, 255, 102, 0.5);
-      box-shadow: 0 20px 40px -15px rgba(0, 255, 102, 0.25);
-    }
-
-    .project-card:hover::before {
-      opacity: 1;
-    }
-
-    .project-card.placeholder {
-      border-style: dashed;
-      opacity: 0.5;
-    }
-
-    .project-card.placeholder:hover {
-      transform: none;
-      border-color: var(--card-border);
-      box-shadow: none;
-    }
-
-    .card-tag {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--cyan);
-      margin-bottom: 12px;
-      display: block;
-      font-weight: 700;
-    }
-
-    .card-title {
-      font-family: var(--font-heading);
-      font-size: 1.4rem;
-      color: var(--text-white);
-      margin-bottom: 12px;
-      line-height: 1.3;
-    }
-
-    .card-desc {
-      font-size: 0.92rem;
-      color: var(--text-dim);
-      margin-bottom: 24px;
-    }
-
-    .card-tech {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .tech-pill {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      color: var(--text);
-      transition: all 0.2s ease;
-    }
-
-    .project-card:hover .tech-pill {
-      border-color: rgba(0, 229, 255, 0.4);
-      color: var(--cyan);
-    }
-
-    /* Project Detail Page */
-    .project-meta-header {
-      margin-bottom: 30px;
-    }
-
-    .project-meta-header h1 {
-      font-family: var(--font-heading);
-      font-size: 2.5rem;
-      color: var(--text-white);
-      margin-bottom: 10px;
-      letter-spacing: -0.5px;
-    }
-
-    .badge-bar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .badge {
-      font-size: 0.75rem;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-status {
-      background: rgba(0, 255, 102, 0.12);
-      color: var(--green);
-      border: 1px solid var(--green);
-      box-shadow: 0 0 10px var(--green-glow);
-    }
-
-    .badge-ext {
-      background: rgba(0, 229, 255, 0.12);
-      color: var(--cyan);
-      border: 1px solid var(--cyan);
-    }
-
-    .loom-container {
-      position: relative;
-      padding-bottom: 62.5%;
-      height: 0;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--card-border);
-      margin-bottom: 30px;
-      background: #000;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-      transition: border-color 0.3s ease;
-    }
-
-    .loom-container:hover {
-      border-color: var(--cyan);
-    }
-
-    .loom-container iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border: 0;
-    }
-
-    .section-title {
-      font-family: var(--font-heading);
-      font-size: 1.3rem;
-      color: var(--text-white);
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 8px;
-      margin: 36px 0 20px 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title::before {
-      content: "//";
-      color: var(--green);
-    }
-
-    .content-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      backdrop-filter: blur(10px);
-    }
-
-    .step-list {
-      list-style: none;
-    }
-
-    .step-item {
-      position: relative;
-      padding-left: 32px;
-      margin-bottom: 18px;
-      line-height: 1.7;
-    }
-
-    .step-item::before {
-      content: "➔";
-      position: absolute;
-      left: 0;
-      color: var(--cyan);
-      font-weight: bold;
-      transition: transform 0.2s ease;
-    }
-
-    .step-item:hover::before {
-      transform: translateX(4px);
-      color: var(--green);
-    }
-
-    .step-item strong {
-      color: var(--text-white);
-    }
-
-    /* Action Play Button */
-    .btn-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, var(--green), #00c853);
-      color: #000;
-      font-weight: 700;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-bottom: 20px;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 4px 20px var(--green-glow);
-    }
-
-    .btn-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px var(--green);
-    }
-
-    footer {
-      margin-top: 80px;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--card-border);
-      padding-top: 30px;
-    }
-
-    /* Typing cursor */
-    .typing-cursor::after {
-      content: "|";
-      animation: blink 1s infinite;
-      color: var(--green);
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-
-    /* Clearer portfolio messaging, responsive calls to action, and contact dialog */
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Space Grotesk', sans-serif; }
-    .hero-subtitle { max-width: 760px; color: var(--text); font-size: 1.08rem; line-height: 1.8; margin-top: 12px; }
-    .hero-actions, .detail-actions, .dialog-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
-    .hero-actions .btn-action, .detail-actions .btn-action, .contact-banner .btn-action { margin-bottom: 0; }
-    .btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 11px 20px; border: 1px solid #34445a; border-radius: 8px; background: rgba(255,255,255,.035); color: var(--text-white); font: 600 .92rem 'Space Grotesk', sans-serif; text-decoration: none; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
-    .btn-secondary:hover { border-color: var(--cyan); background: rgba(0,229,255,.08); transform: translateY(-2px); }
-    .about-box { border-left-width: 3px; padding: 24px 26px; }
-    .about-box p { line-height: 1.85; }
-    .projects-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-top: 38px; }
-    .projects-heading h2, .contact-banner h2 { color: var(--text-white); font: 700 clamp(1.5rem, 3vw, 2rem) 'Space Grotesk', sans-serif; letter-spacing: -.5px; }
-    .projects-heading p { max-width: 430px; color: var(--text-dim); font-size: .9rem; }
-    .eyebrow { display: block; color: var(--green); font-size: .72rem; font-weight: 700; letter-spacing: 1.8px; margin-bottom: 8px; }
-    .project-grid { scroll-margin-top: 20px; }
-    .project-card { min-height: 270px; }
-    .card-desc { line-height: 1.75; }
-    .project-card:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
-    .contact-banner { margin-top: 72px; padding: clamp(24px, 5vw, 44px); border: 1px solid var(--card-border); border-radius: 16px; background: linear-gradient(135deg, rgba(0,255,102,.075), rgba(0,229,255,.045)); }
-    .contact-banner h2 { max-width: 680px; margin-bottom: 12px; }
-    .contact-banner p { max-width: 720px; margin-bottom: 22px; color: var(--text); line-height: 1.8; }
-    footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    footer a, .footer-contact { color: var(--text-dim); text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; }
-    footer a:hover, .footer-contact:hover { color: var(--cyan); }
-    .contact-overlay[hidden] { display: none; }
-    .contact-overlay { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px; background: rgba(2,5,10,.82); backdrop-filter: blur(10px); }
-    .contact-dialog-panel { position: relative; width: min(100%, 560px); padding: clamp(24px, 5vw, 38px); border: 1px solid #2d4054; border-radius: 16px; background: #0c121c; box-shadow: 0 25px 90px rgba(0,0,0,.55); }
-    .contact-dialog-panel h2 { color: var(--text-white); font: 700 clamp(1.5rem, 4vw, 2rem) 'Space Grotesk', sans-serif; line-height: 1.25; margin-bottom: 14px; padding-right: 24px; }
-    .contact-dialog-panel > p:not(.copy-feedback) { color: var(--text); line-height: 1.8; font-size: .95rem; }
-    .dialog-close { position: absolute; top: 14px; right: 16px; width: 38px; height: 38px; border: 1px solid #34445a; border-radius: 8px; background: transparent; color: var(--text-white); font-size: 1.5rem; cursor: pointer; }
-    .email-address { overflow-wrap: anywhere; margin-top: 22px; padding: 15px 16px; border: 1px solid rgba(0,229,255,.3); border-radius: 8px; background: rgba(0,229,255,.055); color: var(--cyan); font-size: clamp(.95rem, 3vw, 1.08rem); font-weight: 700; }
-    .dialog-actions { margin-top: 18px; }
-    .dialog-actions .btn-action { margin-bottom: 0; }
-    .copy-feedback { min-height: 1.4em; margin-top: 10px; color: var(--green); font-size: .85rem; }
-    body.dialog-open { overflow: hidden; }
     @media (max-width: 640px) {
-      header { padding-top: 20px; }
-      .nav-bar { align-items: flex-start; gap: 14px; }
-      .logo { font-size: 1rem; }
-      .social-links a { margin-left: 10px; font-size: .8rem; }
-      .catalog-header h1, .project-meta-header h1 { font-size: clamp(1.9rem, 9vw, 2.5rem); line-height: 1.15; }
-      .project-grid { grid-template-columns: 1fr; }
-      .projects-heading { display: block; }
-      .projects-heading p { margin-top: 10px; }
-      .project-card { min-height: auto; padding: 23px; }
-      .btn-action, .btn-secondary { max-width: 100%; }
-      .hero-actions > *, .detail-actions > *, .dialog-actions > * { flex: 1 1 auto; }
-      footer { justify-content: center; text-align: center; }
+      .hide-sm { display: none !important; }
+      .nav { height: 60px; }
+      .nav-links { gap: 12px; }
+      .hero { padding: 40px 0 24px; }
+      section.block { padding: 36px 0; }
+      .grid-3, .project-grid, .steps-row, .two-col, .two-fields { grid-template-columns: 1fr; }
+      .hero-actions .btn, .detail-actions .btn { flex: 1 1 100%; }
+      .timeline li { padding: 16px 16px 16px 58px; }
+      .timeline .num { left: 14px; top: 16px; }
+      .tech-table th { width: 38%; }
+      .tech-table th, .tech-table td { padding: 10px 12px; }
+      .mobile-bar { display: flex; gap: 10px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(11,16,23,.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); }
+      .mobile-bar .btn { flex: 1; min-height: 44px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
-
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Background Matrix Animation -->
-  <canvas id="bg-canvas"></canvas>
-
-  <!-- Ambient Glow Orbs -->
-  <div class="glow-orb glow-1"></div>
-  <div class="glow-orb glow-2"></div>
-
-  <div class="container">
-    <header>
-      <div class="nav-bar">
-        <a href="#/" class="logo">jervis<span>@automation:~#</span></a>
-        <div class="social-links">
-          <a href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener">GitHub</a>
-          <a href="#contact" class="contact-trigger" aria-haspopup="dialog">Contact Jervis</a>
-        </div>
-      </div>
-    </header>
-
-    <!-- CATALOG VIEW (#/) -->
-    <main id="catalog-view" class="view-page">
-      <div class="catalog-header">
-        <div class="system-status">
-          <div class="pulse-dot"></div>
-          <span>SYSTEM ONLINE • AUTOMATION ENGINE ACTIVE</span>
-        </div>
-        <h1>AI Automation Workflows</h1>
-        <p class="hero-subtitle">I build practical AI-powered workflows that reduce repetitive work, organize information, and keep people in control of important decisions.</p>
-        <div class="hero-actions"><a class="btn-action" href="#projects">Explore my projects <span aria-hidden="true">↓</span></a><button class="btn-secondary contact-trigger" type="button" aria-haspopup="dialog">Discuss a project ↗</button></div>
-      </div>
-
-      <!-- About Jervis Section -->
-      <div class="about-box">
-        <p>👋 I’m <strong>Jervis Tangoan</strong>, an <strong>AI Automation Specialist</strong> building with n8n, LLMs, APIs, and connected business tools. These portfolio projects demonstrate how automation can support customer service, lead qualification, and everyday operations. They are working demos built to show the approach and workflow design—not claims of client results.</p>
-      </div>
-
-      <div class="projects-heading" id="projects"><div><span class="eyebrow">SELECTED WORK</span><h2>Projects & workflow demos</h2></div><p>Open a project to watch its walkthrough and explore how the workflow operates.</p></div>
-      <div class="project-grid" id="project-cards-container">
-        <!-- Rendered via Javascript -->
-      </div>
-    </main>
-
-    <!-- PROJECT DETAIL VIEW (#/project/:id) -->
-    <main id="project-detail-view" class="view-page">
-      <div class="breadcrumb">
-        <a href="#/">&lt; Back to Catalog</a> / <span id="project-slug-breadcrumb">workflow</span>
-      </div>
-
-      <div class="project-meta-header">
-        <div class="badge-bar">
-          <span class="badge badge-status" id="detail-status">● Active</span>
-          <span class="badge badge-ext" id="detail-version">n8n v1.9</span>
-        </div>
-        <h1 id="detail-title">Loading Workflow...</h1>
-        <p id="detail-desc" style="color: var(--text-dim); font-size: 1.1rem;"></p>
-      </div>
-
-      <div class="loom-container" id="loom-embed-box">
-        <!-- Loom iframe inserted here -->
-      </div>
-
-      <div class="detail-actions"><a id="github-repo-btn" href="#" target="_blank" rel="noopener" class="btn-action">⚡ Explore source on GitHub</a><a id="loom-watch-btn" href="#" target="_blank" rel="noopener" class="btn-secondary">Watch on Loom ↗</a></div>
-
-      <h2 class="section-title">Overview</h2>
-      <div class="content-box">
-        <p id="detail-overview-text"></p>
-      </div>
-
-      <h2 class="section-title">Pipeline Architecture & Flow</h2>
-      <div class="content-box">
-        <ul class="step-list" id="detail-steps-list">
-          <!-- Dynamic Steps -->
-        </ul>
-      </div>
-    </main>
-
-    <section class="contact-banner" id="contact-section">
-      <span class="eyebrow">HAVE A WORKFLOW IN MIND?</span>
-      <h2>Let’s make your process work smarter.</h2>
-      <p>Need help with AI support, lead research, email workflows, or a custom n8n automation? Tell me what you want to improve and we can discuss a practical solution.</p>
-      <button class="btn-action contact-trigger" type="button" aria-haspopup="dialog">Contact Jervis <span aria-hidden="true">↗</span></button>
-    </section>
-
-    <footer>
-      <p>Jervis Tangoan · AI Automation Portfolio · © 2026</p>
-      <p><a href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener noreferrer">GitHub</a> <span aria-hidden="true">·</span> <button class="footer-contact contact-trigger" type="button">Email me</button></p>
-    </footer>
-  </div>
-
-  <div class="contact-overlay" id="contact-dialog" role="dialog" aria-modal="true" aria-labelledby="contact-dialog-title" aria-describedby="contact-dialog-desc" hidden>
-    <div class="contact-dialog-panel" role="document">
-      <button class="dialog-close" type="button" aria-label="Close contact dialog">×</button>
-      <span class="eyebrow">CONTACT</span>
-      <h2 id="contact-dialog-title">Let’s talk about your next automation.</h2>
-      <p id="contact-dialog-desc">For freelance projects, collaboration, or future AI automation opportunities, send me an email. Share a little about the process you want to improve and what outcome you’re looking for.</p>
-      <div class="email-address" id="contact-email">jervis.tangoan.other@gmail.com</div>
-      <div class="dialog-actions">
-        <a class="btn-action" id="compose-email" href="mailto:jervis.tangoan.other@gmail.com?subject=AI%20Automation%20Project%20Inquiry&body=Hi%20Jervis%2C%0A%0AI%27m%20reaching%20out%20about%20an%20AI%20automation%20opportunity.%0A%0AProject%20or%20process%20to%20improve%3A%0A%0ADesired%20outcome%3A%0A%0ATimeline%3A%0A%0AThanks!">✉ Compose email</a>
-        <button class="btn-secondary" id="copy-email-btn" type="button">Copy email address</button>
-      </div>
-      <p class="copy-feedback" id="copy-feedback" aria-live="polite"></p>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#/" aria-label="Jervis Tangoan, home">
+        <span class="brand-mark" aria-hidden="true">JT</span>
+        <span>Jervis Tangoan<small>AI Automation Specialist</small></span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a class="hide-sm" href="#/" data-goto="projects">Projects</a>
+        <a class="hide-sm" href="#/" data-goto="services">Services</a>
+        <a class="hide-sm" href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a class="btn btn-primary btn-sm" href="#contact" data-contact>Hire me</a>
+      </nav>
     </div>
+  </header>
+
+  <main id="main">
+    <!-- HOME -->
+    <div id="home-view" class="view">
+      <div class="container">
+        <section class="hero">
+          <span class="availability"><i></i> Open to freelance projects</span>
+          <h1>I build AI workflows that take <em>repetitive work</em> off your plate.</h1>
+          <p class="lead">I'm Jervis, an AI automation specialist. I connect tools like Gmail, Airtable and Telegram with AI so routine tasks such as answering emails, researching leads and handling support questions get done faster, with you approving the important decisions.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#contact" data-contact>Discuss your project →</a>
+            <a class="btn btn-ghost" href="#/" data-goto="projects">See my work</a>
+          </div>
+          <div class="hero-meta">
+            <span>Built with n8n, LLMs and APIs</span>
+            <span>Human approval on key actions</span>
+            <span>Video walkthrough for every project</span>
+          </div>
+        </section>
+
+        <section class="block" id="services">
+          <div class="section-head">
+            <span class="eyebrow">What I can build</span>
+            <h2 class="title">Automation for the work that eats your day</h2>
+            <p class="section-intro">If a task follows a pattern, it can usually be automated. Here are the areas I focus on.</p>
+          </div>
+          <div class="grid-3">
+            <div class="info-card"><div class="ico" aria-hidden="true">✉️</div><h3>Email and inbox automation</h3><p>Summarize incoming emails, draft replies in your tone, and send only after you approve.</p></div>
+            <div class="info-card"><div class="ico" aria-hidden="true">🎯</div><h3>Lead research and qualification</h3><p>Verify new leads, research the person and company, score them, and save the result to your CRM or Airtable.</p></div>
+            <div class="info-card"><div class="ico" aria-hidden="true">💬</div><h3>AI support chatbots</h3><p>Website chat that answers from your own documents and hands off to a human when needed.</p></div>
+          </div>
+        </section>
+
+        <section class="block" id="about">
+          <div class="about">
+            <div class="about-text">
+              <span class="eyebrow">About me</span>
+              <h2 class="title" style="margin-bottom:16px">Practical automation, not hype</h2>
+              <p>I'm <strong>Jervis Tangoan</strong>, an <strong>AI Automation Specialist</strong> who designs and builds workflows with n8n, large language models, APIs and the business tools you already use.</p>
+              <p>My goal is simple: save people time and keep them in control. That's why my workflows check their work, avoid guessing, and ask for a human decision before anything important happens.</p>
+              <p>The projects below are working demos built to show my approach and workflow design. They are not client case studies.</p>
+            </div>
+            <div class="panel">
+              <h3>How I approach every build</h3>
+              <ul class="check-list">
+                <li>Start with the problem, not the tool</li>
+                <li>Keep a human approving high-stakes steps</li>
+                <li>Make the AI say "Unknown" instead of guessing</li>
+                <li>Use structured outputs so downstream steps stay reliable</li>
+                <li>Record a walkthrough so you can see how it works</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="block" id="projects">
+          <div class="section-head">
+            <span class="eyebrow">Selected work</span>
+            <h2 class="title">Projects and workflow demos</h2>
+            <p class="section-intro">Each project has a video walkthrough, a plain-English summary, and technical details for developers.</p>
+          </div>
+          <div class="project-grid" id="project-cards"></div>
+        </section>
+
+        <section class="block" id="process">
+          <div class="section-head">
+            <span class="eyebrow">Working together</span>
+            <h2 class="title">A simple way to get started</h2>
+          </div>
+          <div class="steps-row">
+            <div class="step-mini"><h3>Tell me the problem</h3><p>Describe the task that costs you the most time and what a good result looks like.</p></div>
+            <div class="step-mini"><h3>Plan the workflow</h3><p>We agree on the steps, tools and where you want to approve things.</p></div>
+            <div class="step-mini"><h3>Build and test</h3><p>I build it in n8n, test it with real examples and show you how it behaves.</p></div>
+            <div class="step-mini"><h3>Hand over</h3><p>You get a working automation and a walkthrough so you know how to use it.</p></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- PROJECT DETAIL -->
+    <div id="project-view" class="view">
+      <div class="container">
+        <div class="crumbs"><a href="#/">← All projects</a> <span aria-hidden="true">/</span> <span id="crumb-title"></span></div>
+        <div class="detail-head">
+          <div class="card-top" style="justify-content:flex-start;gap:12px">
+            <span class="tag" id="d-tag"></span>
+            <span class="status-pill" id="d-status"></span>
+          </div>
+          <h1 id="d-title"></h1>
+          <p class="lead" id="d-summary"></p>
+          <div class="detail-actions">
+            <a class="btn btn-primary" id="d-github" target="_blank" rel="noopener noreferrer">View source on GitHub ↗</a>
+            <a class="btn btn-ghost" id="d-loom" target="_blank" rel="noopener noreferrer">Open video on Loom ↗</a>
+            <a class="btn btn-ghost" href="#contact" data-contact>Ask about something similar</a>
+          </div>
+        </div>
+
+        <div class="video-wrap" id="d-video"></div>
+        <p class="video-note">Video walkthrough of the workflow running. Click full screen for the best view.</p>
+
+        <div class="detail-layout">
+          <div class="detail-main">
+            <section>
+              <h2>The short version</h2>
+              <div class="two-col">
+                <div class="callout"><h3>The problem</h3><p id="d-problem"></p></div>
+                <div class="callout alt"><h3>The solution</h3><p id="d-solution"></p></div>
+              </div>
+            </section>
+            <section>
+              <h2>What this gives you</h2>
+              <ul class="outcome-list" id="d-outcomes"></ul>
+            </section>
+            <section>
+              <h2>How it works, step by step</h2>
+              <ol class="timeline" id="d-steps"></ol>
+            </section>
+            <section>
+              <h2>Tools and technical details</h2>
+              <table class="tech-table" id="d-tech"></table>
+            </section>
+          </div>
+
+          <aside class="sidebar" aria-label="Project summary">
+            <div class="side-card">
+              <h3>At a glance</h3>
+              <ul class="quick-facts" id="d-facts"></ul>
+            </div>
+            <div class="side-card">
+              <h3>Want this for your business?</h3>
+              <p>Tell me about your process and I'll suggest a practical way to automate it.</p>
+              <a class="btn btn-primary" href="#contact" data-contact>Contact Jervis</a>
+            </div>
+          </aside>
+        </div>
+
+        <div class="more-projects">
+          <a class="btn btn-ghost" id="d-prev" href="#/">← Previous project</a>
+          <a class="btn btn-ghost" id="d-next" href="#/">Next project →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT (shared by all pages) -->
+    <div class="container">
+      <section class="contact" id="contact" aria-labelledby="contact-title">
+        <div class="contact-copy">
+          <span class="eyebrow">Contact</span>
+          <h2 id="contact-title">Let's automate something together.</h2>
+          <p>Have a repetitive process, a messy inbox or a lead list that needs sorting? Send me a few details and I'll reply with ideas on how to automate it.</p>
+          <div class="contact-methods">
+            <div class="method">
+              <span class="m-ico" aria-hidden="true">✉️</span>
+              <span><small>Email</small><span class="v" id="email-text">jervis.tangoan.other@gmail.com</span></span>
+              <button class="copy-btn" type="button" id="copy-email">Copy</button>
+            </div>
+            <a class="method" href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener noreferrer">
+              <span class="m-ico" aria-hidden="true">💻</span>
+              <span><small>GitHub</small><span class="v">jervisAutomation</span></span>
+            </a>
+          </div>
+        </div>
+
+        <form class="contact-form" id="contact-form" novalidate>
+          <div class="two-fields">
+            <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" placeholder="Jane Doe" required></div>
+            <div class="field"><label for="f-email">Your email</label><input id="f-email" name="email" type="email" autocomplete="email" placeholder="jane@company.com" required></div>
+          </div>
+          <div class="field">
+            <label for="f-type">What do you need?</label>
+            <select id="f-type" name="type">
+              <option>Email or inbox automation</option>
+              <option>Lead research and qualification</option>
+              <option>AI customer support chatbot</option>
+              <option>Custom n8n automation</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+          <div class="field"><label for="f-msg">Tell me about the process you want to improve</label><textarea id="f-msg" name="message" placeholder="What takes up the most time today, and what would a good result look like?" required></textarea></div>
+          <button class="btn btn-primary" type="submit">Send by email ✉</button>
+          <p class="form-note">This opens your email app with the message ready to send. Prefer to write it yourself? Email me directly.</p>
+          <p class="form-feedback" id="form-feedback" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container foot-inner">
+      <span>© 2026 Jervis Tangoan · AI Automation Specialist</span>
+      <span><a href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="mailto:jervis.tangoan.other@gmail.com">Email</a></span>
+    </div>
+  </footer>
+
+  <div class="mobile-bar">
+    <a class="btn btn-primary" href="mailto:jervis.tangoan.other@gmail.com?subject=AI%20Automation%20Project%20Inquiry">✉ Email me</a>
+    <a class="btn btn-ghost" href="#contact" data-contact>Send details</a>
   </div>
 
   <script>
-    // CONTACT DIALOG
-    const contactDialog = document.getElementById('contact-dialog');
-    const firstContactTrigger = document.querySelector('.contact-trigger');
-    let lastFocusedElement = null;
-    function openContactDialog(event) {
-      lastFocusedElement = event.currentTarget;
-      contactDialog.hidden = false;
-      document.body.classList.add('dialog-open');
-      contactDialog.querySelector('.dialog-close').focus();
-    }
-    function closeContactDialog() {
-      contactDialog.hidden = true;
-      document.body.classList.remove('dialog-open');
-      if (lastFocusedElement) lastFocusedElement.focus();
-    }
-    document.querySelectorAll('.contact-trigger').forEach(button => button.addEventListener('click', openContactDialog));
-    contactDialog.querySelector('.dialog-close').addEventListener('click', closeContactDialog);
-    contactDialog.addEventListener('click', event => { if (event.target === contactDialog) closeContactDialog(); });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !contactDialog.hidden) closeContactDialog(); });
-    document.getElementById('copy-email-btn').addEventListener('click', async () => {
-      const feedback = document.getElementById('copy-feedback');
-      try {
-        await navigator.clipboard.writeText('jervis.tangoan.other@gmail.com');
-        feedback.textContent = 'Email address copied.';
-      } catch (error) {
-        feedback.textContent = 'Copy is unavailable in this browser. Select the email address above to copy it.';
-      }
-    });
+    var EMAIL = 'jervis.tangoan.other@gmail.com';
+    var GITHUB_ROOT = 'https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows';
 
-    // MATRIX RAIN BACKGROUND ANIMATION
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    const chars = '01101001 01101110 01110100 01100101 01101100 01101100 01101001 01100111 01100101 01101110 01100011 01100101'.split('');
-    const fontSize = 12;
-    let columns = Math.floor(canvas.width / fontSize);
-    let drops = Array(columns).fill(1);
-
-    function drawMatrix() {
-      ctx.fillStyle = 'rgba(6, 9, 14, 0.08)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = '#00ff66';
-      ctx.font = `${fontSize}px monospace`;
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    }
-    setInterval(drawMatrix, 40);
-
-    // CENTRALIZED WORKFLOW REGISTRY
-    const WORKFLOWS = [
+    var WORKFLOWS = [
       {
-        id: "email-assistant",
-        title: "AI Email Assistant Workflow",
-        summary: "Autonomous Gmail assistant using Groq LLM to summarize incoming emails, draft HTML replies, and gate execution via Telegram double-approval.",
-        status: "Production Ready",
-        version: "n8n v1.9",
-        loomId: "cfe408a4bb984cd2bc69670fe070b53a",
-        githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows",
-        tech: ["n8n", "Groq LLM", "Gmail API", "Telegram Bot"],
-        overview: "An end-to-end autonomous email management system engineered to eliminate inbox fatigue. The workflow continuously polls Gmail for new messages, analyzes tone and context using Groq LLM (GPT-20B), generates professionally formatted HTML drafts, and enforces a mandatory human-in-the-loop approval gate via Telegram before sending any email.",
-        pipelineSteps: [
-          "<strong>1. Ingest & Poll:</strong> Automatically checks your Gmail inbox every minute for any new, unread messages.",
-          "<strong>2. AI Processing:</strong> Sends the email body to the Groq LLM (GPT-20B) to summarize the content, evaluate if a response is needed, and draft a polite HTML reply.",
-          "<strong>3. Decision Routing:</strong> Checks the AI's response. If no reply is needed, it sends a brief Telegram notification and finishes the task.",
-          "<strong>4. Draft Generation:</strong> If a reply is required, it automatically creates a new draft in Gmail linked directly to the original email thread.",
-          "<strong>5. Telegram Approval Gate:</strong> Sends an alert to your Telegram with the email summary and suggested reply, prompting you with [Approve] and [Disapprove] buttons.",
-          "<strong>6. Action Execution:</strong> If you tap <em>Approve</em> on Telegram, it dispatches the draft instantly via the Gmail API. If you tap <em>Disapprove</em>, it safely cancels without sending."
+        id: 'email-assistant',
+        category: 'Email automation',
+        title: 'AI Email Assistant',
+        summary: 'Reads new Gmail messages, summarizes them, drafts replies, and sends only after you tap Approve in Telegram.',
+        plain: 'Cuts down inbox time by reading and drafting for you, while you keep the final say on every email that goes out.',
+        status: 'Working demo',
+        loomId: 'cfe408a4bb984cd2bc69670fe070b53a',
+        githubUrl: GITHUB_ROOT,
+        tech: ['n8n', 'Groq LLM', 'Gmail', 'Telegram'],
+        cardFacts: ['Summarizes every new email', 'Drafts a reply in Gmail', 'Nothing sends without your approval'],
+        bestFor: 'Founders, freelancers and small teams with a busy inbox',
+        humanControl: 'Approve or Disapprove button in Telegram before any email is sent',
+        problem: 'Reading, understanding and replying to every email takes hours each week, and many messages need only a short, polite answer.',
+        solution: 'An AI assistant checks your Gmail, summarizes each message, decides whether a reply is needed, and prepares a draft. You review it on Telegram and approve or reject it with one tap.',
+        outcomes: [
+          '<strong>Less time in the inbox:</strong> you read a short summary instead of every full message.',
+          '<strong>Drafts ready to go:</strong> replies are prepared in Gmail, attached to the original conversation.',
+          '<strong>You stay in control:</strong> nothing is sent until you tap Approve.',
+          '<strong>No noise:</strong> emails that need no reply only trigger a brief notification.'
+        ],
+        steps: [
+          { t: 'Check for new emails', d: 'The workflow checks your Gmail inbox every minute for new, unread messages.', n: 'Gmail trigger (polling)' },
+          { t: 'AI reads and summarizes', d: 'The email text goes to an LLM running on Groq. It writes a short summary, decides whether a reply is needed, and drafts a polite HTML reply.', n: 'Basic LLM Chain + Groq chat model' },
+          { t: 'Decide what to do next', d: 'If no reply is needed, you get a short Telegram notification and the workflow ends.', n: 'If / Switch node' },
+          { t: 'Create the Gmail draft', d: 'If a reply is needed, a draft is created in Gmail and linked to the original email thread.', n: 'Gmail: create draft' },
+          { t: 'Ask for your approval', d: 'You receive a Telegram message with the summary and suggested reply, plus Approve and Disapprove buttons.', n: 'Telegram: send and wait for response' },
+          { t: 'Send or cancel', d: 'Approve sends the draft through Gmail right away. Disapprove cancels safely and nothing is sent.', n: 'Gmail: send' }
+        ],
+        techRows: [
+          ['Automation platform', 'n8n workflow with a scheduled Gmail trigger'],
+          ['AI model', 'LLM hosted on Groq, called through an n8n LLM chain'],
+          ['Integrations', 'Gmail API (read, draft, send) and Telegram Bot'],
+          ['Safety', 'Human-in-the-loop approval gate before the send step']
         ]
       },
       {
-        id: "lead-enrichment",
-        title: "AI Lead Enrichment Workflow",
-        summary: "Takes a new contact-form lead, checks the email is real, researches the person and company with an AI agent, scores the lead, and asks me on Telegram before the final decision lands in Airtable.",
-        status: "Working Demo",
-        version: "n8n",
-        loomId: "f35bb16bb6d140b0beaa29469ad35eff",
-        githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows/tree/main/AI%20Lead%20Enrichment%20Workflow%20Automation",
-        tech: ["n8n", "Groq LLM", "Tavily Search", "Hunter", "Airtable", "Telegram Bot"],
-        overview: "Anyone who runs a contact form knows the routine: some leads are great, some are typos or bots, and every one needs someone to google the name and company before deciding if it's worth a reply. I built this workflow to do that boring first pass. It checks consent, verifies the email, lets an AI agent research the person and company on the web, scores the lead, and then leaves the final yes or no to a human on Telegram.",
-        pipelineSteps: [
-          "<strong>1. Form Submission:</strong> A webhook catches every new contact-form submission: name, work email, company, phone number, what they want to solve, and whether they agreed to be contacted.",
-          "<strong>2. Consent Check:</strong> If the person didn't tick the consent box, they're logged in a separate Airtable table and the workflow stops there. No research, no follow-up.",
-          "<strong>3. Email Verification:</strong> Hunter checks whether the email can actually receive mail. Undeliverable addresses get logged with a note and skipped, so no time is wasted on them.",
-          "<strong>4. AI Research:</strong> A Groq-powered agent uses Tavily web search, up to two searches only. First it checks that the person really works at that company, then it looks up the company size. It's told never to guess, so anything it can't verify comes back as <em>Unknown</em>.",
-          "<strong>5. Lead Scoring:</strong> The agent returns a fixed, structured result: a High, Medium or Low score, a short reason for it, and the company size. Keeping the format strict means the rest of the workflow never has to interpret free text.",
-          "<strong>6. Smart Routing:</strong> Low-scoring leads go straight into Airtable as <em>Low priority</em>, with no human time spent. Medium and High leads are saved as <em>New</em> and sent on for review.",
-          "<strong>7. Telegram Approval Gate:</strong> I get a Telegram message with the lead's details, the score and the AI's reasoning, with [Approve] and [Disapprove] buttons. The workflow waits until I answer.",
-          "<strong>8. Final Status:</strong> If I tap <em>Approve</em>, the lead is marked <em>Qualified</em> in Airtable. If I tap <em>Disapprove</em>, it's marked <em>Disqualified</em>."
+        id: 'lead-enrichment',
+        category: 'Lead qualification',
+        title: 'AI Lead Enrichment',
+        summary: 'Checks new contact-form leads, researches the person and company with an AI agent, scores the lead, and asks you on Telegram before saving the final decision to Airtable.',
+        plain: 'Does the first-pass research on every lead so you only spend time on the ones worth a reply.',
+        status: 'Working demo',
+        loomId: 'f35bb16bb6d140b0beaa29469ad35eff',
+        githubUrl: GITHUB_ROOT + '/tree/main/AI%20Lead%20Enrichment%20Workflow%20Automation',
+        tech: ['n8n', 'Groq LLM', 'Tavily', 'Hunter', 'Airtable', 'Telegram'],
+        cardFacts: ['Verifies email addresses', 'Researches person and company', 'Scores High, Medium or Low'],
+        bestFor: 'Agencies, consultants and sales teams that receive web form leads',
+        humanControl: 'Medium and High leads wait for your Telegram approval',
+        problem: 'Some leads are great, others are typos or bots, and each one needs someone to search the web before deciding whether it deserves a reply.',
+        solution: 'The workflow checks consent, verifies the email, lets an AI agent research the lead on the web, scores it, and leaves the final yes or no to you on Telegram. Results are stored in Airtable.',
+        outcomes: [
+          '<strong>Time saved on research:</strong> the agent checks the person and company for you.',
+          '<strong>Fewer wasted follow-ups:</strong> invalid emails and low-fit leads are filtered out early.',
+          '<strong>Honest answers:</strong> the agent is told never to guess, so unverified details return as "Unknown".',
+          '<strong>Consent respected:</strong> people who did not agree to be contacted are logged and never researched.',
+          '<strong>Clear records:</strong> every lead ends with a status in Airtable (New, Low priority, Qualified or Disqualified).'
+        ],
+        steps: [
+          { t: 'Form submission', d: 'A webhook receives each new contact-form submission: name, work email, company, phone, what they want to solve, and whether they agreed to be contacted.', n: 'Webhook trigger' },
+          { t: 'Consent check', d: 'If the consent box was not ticked, the person is logged in a separate Airtable table and the workflow stops. No research, no follow-up.', n: 'If node + Airtable' },
+          { t: 'Email verification', d: 'Hunter checks whether the email address can actually receive mail. Undeliverable addresses are logged with a note and skipped.', n: 'Hunter email verifier' },
+          { t: 'AI research', d: 'A Groq-powered agent uses Tavily web search, limited to two searches. It first confirms the person works at the company, then looks up the company size. Anything it cannot verify comes back as Unknown.', n: 'AI Agent + Tavily tool' },
+          { t: 'Lead scoring', d: 'The agent returns a fixed structure: a High, Medium or Low score, a short reason, and the company size. A strict format means later steps never have to interpret free text.', n: 'Structured output parser' },
+          { t: 'Smart routing', d: 'Low leads go straight to Airtable as Low priority with no human time spent. Medium and High leads are saved as New and sent for review.', n: 'Switch node + Airtable' },
+          { t: 'Telegram approval', d: 'You get a message with the lead details, score and the AI reasoning, with Approve and Disapprove buttons. The workflow waits for your answer.', n: 'Telegram: send and wait' },
+          { t: 'Final status', d: 'Approve marks the lead Qualified in Airtable. Disapprove marks it Disqualified.', n: 'Airtable: update record' }
+        ],
+        techRows: [
+          ['Automation platform', 'n8n with a webhook trigger'],
+          ['AI model', 'Groq-hosted LLM running as an n8n AI Agent'],
+          ['Research and verification', 'Tavily web search (max two searches) and Hunter email verification'],
+          ['Data storage', 'Airtable tables for leads and non-consented contacts'],
+          ['Safety', 'Consent gate, no-guessing instruction, structured output, human approval']
         ]
       },
       {
-        id: "customer-support-rag",
-        title: "AI Customer Support + RAG System",
-        summary: "A website support chatbot connected to n8n that classifies questions, retrieves relevant knowledge from Supabase, and routes requests through dedicated support paths.",
-        status: "Working Demo",
-        version: "n8n · Gemini · Supabase",
-        loomId: "efcb75921fbd4abda39943ea3b212ead",
-        githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows",
-        tech: ["n8n", "RAG", "Google Gemini", "Supabase Vector Store", "Website Chatbot"],
-        overview: "This project demonstrates a customer-support chatbot connected to an n8n workflow. When a visitor sends a message, the workflow normalizes the request and uses an LLM classifier to identify the intent. Knowledge-base questions can be answered using relevant documents retrieved from a Supabase vector store, while other intents are directed to separate paths for order/account questions, billing, troubleshooting, or human escalation. The demo uses fictional ForgeFlow information to illustrate the approach; it is not connected to a real company’s customer records.",
-        pipelineSteps: [
-          "<strong>1. Website chat intake:</strong> A visitor submits a message through the website chatbot, which sends the message and session details to an n8n webhook.",
-          "<strong>2. Normalize request data:</strong> The workflow prepares the message, session ID, channel, page URL, and optional customer email for downstream processing.",
-          "<strong>3. Classify the intent:</strong> Google Gemini categorizes the message as knowledge base, order/account, billing, troubleshooting, human escalation, or unknown.",
-          "<strong>4. Route to the matching path:</strong> A Switch node directs the request according to the classifier result, allowing each support category to be handled separately.",
-          "<strong>5. Retrieve knowledge with RAG:</strong> For knowledge-base questions, the workflow uses Google Gemini embeddings and a Supabase vector store to retrieve relevant information from the demo documents.",
-          "<strong>6. Respond with context:</strong> The retrieved information can ground the response in the provided knowledge base rather than relying only on a general model answer.",
-          "<strong>7. Escalate when appropriate:</strong> Sensitive or unresolved requests can be directed toward a human-support path instead of pretending the bot has completed an action."
+        id: 'customer-support-rag',
+        category: 'Support chatbot (RAG)',
+        title: 'AI Customer Support with RAG',
+        summary: 'A website chatbot connected to n8n that understands what a visitor is asking, finds answers in a knowledge base, and routes other requests to the right path.',
+        plain: 'Answers common questions from your own documents and passes sensitive ones to a human instead of making things up.',
+        status: 'Working demo',
+        loomId: 'efcb75921fbd4abda39943ea3b212ead',
+        githubUrl: GITHUB_ROOT,
+        tech: ['n8n', 'Google Gemini', 'Supabase', 'RAG', 'Website chat'],
+        cardFacts: ['Classifies each question', 'Answers from your documents', 'Escalates to a human when needed'],
+        bestFor: 'Businesses with FAQs, policies or product docs and frequent support questions',
+        humanControl: 'Sensitive or unresolved requests are directed to human support',
+        problem: 'Support teams answer the same questions again and again, and a generic chatbot may invent answers that are wrong for your business.',
+        solution: 'The chatbot first works out what the visitor wants. For knowledge questions it retrieves the relevant passages from your documents (RAG) and answers using them. Other topics follow their own paths, including escalation to a human.',
+        outcomes: [
+          '<strong>Faster answers:</strong> common questions are handled instantly from your knowledge base.',
+          '<strong>Grounded replies:</strong> answers are based on your documents instead of only the model\'s general knowledge.',
+          '<strong>Right path for each request:</strong> billing, orders, troubleshooting and escalation are separated.',
+          '<strong>Honest handoff:</strong> sensitive requests go to a person rather than the bot pretending to complete an action.'
+        ],
+        steps: [
+          { t: 'Website chat intake', d: 'A visitor sends a message through the website chatbot, which passes the message and session details to n8n.', n: 'Webhook trigger' },
+          { t: 'Prepare the request', d: 'The workflow tidies up the message, session ID, channel, page URL and optional customer email for the next steps.', n: 'Set / Edit Fields node' },
+          { t: 'Classify the intent', d: 'The LLM chain labels the message as knowledge base, order or account, billing, troubleshooting, human escalation, or unknown.', n: 'LLM classifier (Gemini)' },
+          { t: 'Route to the right path', d: 'Each category is handled separately so every kind of request gets suitable treatment.', n: 'Switch node' },
+          { t: 'Retrieve knowledge', d: 'For knowledge questions, the workflow turns the question into an embedding and searches the Supabase vector store for the most relevant passages.', n: 'Gemini embeddings + Supabase vector store' },
+          { t: 'Reply with context', d: 'The retrieved passages are given to the model so the answer is grounded in the provided documents.', n: 'AI Agent / chain with retriever' },
+          { t: 'Escalate when appropriate', d: 'Sensitive or unresolved requests are directed to a human-support path.', n: 'Escalation branch' }
+        ],
+        techRows: [
+          ['Automation platform', 'n8n with a webhook connected to a website chat widget'],
+          ['AI models', 'Google Gemini for embeddings and Groq for classification and answers'],
+          ['Knowledge base', 'Supabase vector store loaded with demo documents'],
+          ['Demo data', 'Fictional company (ForgeFlow). Not connected to real customer records.']
         ]
       }
     ];
 
-    // ROUTER ENGINE
-    function handleRouting() {
-      const hash = window.location.hash || '#/';
-      const catalogView = document.getElementById('catalog-view');
-      const detailView = document.getElementById('project-detail-view');
+    /* ---------- helpers ---------- */
+    function $(id) { return document.getElementById(id); }
+    function loomEmbed(id) { return 'https://www.loom.com/embed/' + id; }
 
-      if (hash.startsWith('#/project/')) {
-        const projectId = hash.replace('#/project/', '');
-        const project = WORKFLOWS.find(w => w.id === projectId);
+    /* ---------- render ---------- */
+    function renderCards() {
+      $('project-cards').innerHTML = WORKFLOWS.map(function (w) {
+        return '<a class="project-card" href="#/project/' + w.id + '">' +
+          '<div class="card-top"><span class="tag">' + w.category + '</span><span class="status-pill">● ' + w.status + '</span></div>' +
+          '<h3>' + w.title + '</h3>' +
+          '<p class="plain">' + w.plain + '</p>' +
+          '<ul class="card-facts">' + w.cardFacts.map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul>' +
+          '<div class="card-foot"><div class="pills">' + w.tech.map(function (t) { return '<span class="pill">' + t + '</span>'; }).join('') + '</div>' +
+          '<span class="card-link">Watch demo and read details <span>→</span></span></div></a>';
+      }).join('');
+    }
 
-        if (project) {
-          renderProjectDetail(project);
-          catalogView.classList.remove('active');
-          detailView.classList.add('active');
+    function renderProject(w, index) {
+      document.title = w.title + ' | Jervis Tangoan';
+      $('crumb-title').textContent = w.title;
+      $('d-tag').textContent = w.category;
+      $('d-status').textContent = '● ' + w.status;
+      $('d-title').textContent = w.title;
+      $('d-summary').textContent = w.summary;
+      $('d-github').href = w.githubUrl;
+      $('d-loom').href = 'https://www.loom.com/share/' + w.loomId;
+      $('d-video').innerHTML = '<iframe src="' + loomEmbed(w.loomId) + '" title="' + w.title + ' video walkthrough" loading="lazy" allowfullscreen></iframe>';
+      $('d-problem').textContent = w.problem;
+      $('d-solution').textContent = w.solution;
+      $('d-outcomes').innerHTML = w.outcomes.map(function (o) { return '<li>' + o + '</li>'; }).join('');
+      $('d-steps').innerHTML = w.steps.map(function (s, i) {
+        return '<li><span class="num" aria-hidden="true">' + (i + 1) + '</span><h3>' + s.t + '</h3><p>' + s.d + '</p>' +
+          (s.n ? '<span class="tech-note">Technical: ' + s.n + '</span>' : '') + '</li>';
+      }).join('');
+      $('d-tech').innerHTML = '<tbody>' + w.techRows.map(function (r) { return '<tr><th scope="row">' + r[0] + '</th><td>' + r[1] + '</td></tr>'; }).join('') + '</tbody>';
+      $('d-facts').innerHTML =
+        '<li><b>Best for</b>' + w.bestFor + '</li>' +
+        '<li><b>You stay in control</b>' + w.humanControl + '</li>' +
+        '<li><b>Built with</b>' + w.tech.join(', ') + '</li>' +
+        '<li><b>Type</b>Portfolio demo (not a client case study)</li>';
+      var prev = WORKFLOWS[(index + WORKFLOWS.length - 1) % WORKFLOWS.length];
+      var next = WORKFLOWS[(index + 1) % WORKFLOWS.length];
+      $('d-prev').href = '#/project/' + prev.id;
+      $('d-prev').textContent = '← ' + prev.title;
+      $('d-next').href = '#/project/' + next.id;
+      $('d-next').textContent = next.title + ' →';
+    }
+
+    /* ---------- router ---------- */
+    var pendingScroll = null;
+    function route() {
+      var hash = window.location.hash || '#/';
+      var home = $('home-view'), proj = $('project-view');
+      var match = hash.match(/^#\/project\/([\w-]+)/);
+      var idx = match ? WORKFLOWS.findIndex(function (w) { return w.id === match[1]; }) : -1;
+
+      if (idx > -1) {
+        renderProject(WORKFLOWS[idx], idx);
+        home.classList.remove('active');
+        proj.classList.add('active');
+        window.scrollTo(0, 0);
+      } else {
+        document.title = 'Jervis Tangoan | AI Automation Specialist (n8n, LLMs, APIs)';
+        proj.classList.remove('active');
+        home.classList.add('active');
+        if (pendingScroll) {
+          var el = $(pendingScroll); pendingScroll = null;
+          if (el) setTimeout(function () { el.scrollIntoView({ behavior: 'smooth' }); }, 30);
+        } else {
           window.scrollTo(0, 0);
-          return;
         }
       }
-
-      // Default Catalog View
-      renderCatalog();
-      detailView.classList.remove('active');
-      catalogView.classList.add('active');
-      window.scrollTo(0, 0);
     }
 
-    function renderCatalog() {
-      const container = document.getElementById('project-cards-container');
-      
-      let html = WORKFLOWS.map(w => `
-        <a href="#/project/${w.id}" class="project-card">
-          <div>
-            <span class="card-tag">⚡ ${w.id === "customer-support-rag" ? "FEATURED PROJECT" : w.tech.slice(0, 2).join(' • ')}</span>
-            <h3 class="card-title">${w.title}</h3>
-            <p class="card-desc">${w.summary}</p>
-          </div>
-          <div class="card-tech">
-            ${w.tech.map(t => `<span class="tech-pill">${t}</span>`).join('')}
-          </div>
-        </a>
-      `).join('');
+    /* Section links on the home page (Projects, Services) */
+    document.querySelectorAll('[data-goto]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var target = a.getAttribute('data-goto');
+        var onHome = $('home-view').classList.contains('active');
+        if (onHome) {
+          e.preventDefault();
+          $(target).scrollIntoView({ behavior: 'smooth' });
+        } else {
+          pendingScroll = target;
+        }
+      });
+    });
 
-      // Extensible placeholder slot
-      html += `
-        <div class="project-card placeholder">
-          <div>
-            <span class="card-tag" style="color: var(--text-dim);">// IN DEVELOPMENT</span>
-            <h3 class="card-title" style="color: var(--text-dim);">Next Workflow Slot</h3>
-            <p class="card-desc">A new workflow will appear here as the portfolio grows.</p>
-          </div>
-        </div>
-      `;
+    /* Contact links scroll to the shared contact section on any page */
+    document.querySelectorAll('[data-contact]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        $('contact').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(function () { var n = $('f-name'); if (n) n.focus({ preventScroll: true }); }, 600);
+      });
+    });
 
-      container.innerHTML = html;
-    }
+    /* ---------- contact actions ---------- */
+    $('copy-email').addEventListener('click', function () {
+      var btn = this;
+      function done(ok) { btn.textContent = ok ? 'Copied!' : 'Select and copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 2000); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(EMAIL).then(function () { done(true); }, function () { done(false); });
+      } else { done(false); }
+    });
 
-    function renderProjectDetail(p) {
-      document.getElementById('project-slug-breadcrumb').innerText = p.id;
-      document.getElementById('detail-title').innerText = p.title;
-      document.getElementById('detail-desc').innerText = p.summary;
-      document.getElementById('detail-status').innerText = `● ${p.status}`;
-      document.getElementById('detail-version').innerText = p.version;
-      document.getElementById('detail-overview-text').innerText = p.overview;
-      document.getElementById('github-repo-btn').href = p.githubUrl;
-      document.getElementById('loom-watch-btn').href = `https://www.loom.com/share/${p.loomId}`;
-      document.getElementById('github-repo-btn').style.display = p.githubUrl ? 'inline-flex' : 'none';
+    $('contact-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = $('f-name').value.trim(), email = $('f-email').value.trim(), msg = $('f-msg').value.trim();
+      var fb = $('form-feedback');
+      if (!name || !email || !msg) { fb.style.color = '#ffb703'; fb.textContent = 'Please fill in your name, email and a short message.'; return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { fb.style.color = '#ffb703'; fb.textContent = 'Please enter a valid email address.'; return; }
+      var subject = 'AI Automation Inquiry: ' + $('f-type').value;
+      var body = 'Hi Jervis,\n\n' + msg + '\n\nNeed: ' + $('f-type').value + '\nName: ' + name + '\nReply to: ' + email;
+      fb.style.color = ''; fb.textContent = 'Opening your email app. If nothing opens, email ' + EMAIL + ' directly.';
+      window.location.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    });
 
-      // Loom Embed
-      document.getElementById('loom-embed-box').innerHTML = `
-        <iframe src="https://www.loom.com/embed/${p.loomId}" 
-                webkitallowfullscreen mozallowfullscreen allowfullscreen>
-        </iframe>
-      `;
-
-      // Pipeline Steps
-      document.getElementById('detail-steps-list').innerHTML = p.pipelineSteps.map(step => `
-        <li class="step-item">${step}</li>
-      `).join('');
-    }
-
-    window.addEventListener('hashchange', handleRouting);
-    window.addEventListener('DOMContentLoaded', handleRouting);
+    renderCards();
+    window.addEventListener('hashchange', route);
+    route();
   </script>
 </body>
 </html>
