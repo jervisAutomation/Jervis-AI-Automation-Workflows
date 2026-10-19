@@ -507,6 +507,61 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
     }
+
+
+    /* Clearer portfolio messaging, responsive calls to action, and contact dialog */
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Space Grotesk', sans-serif; }
+    .hero-subtitle { max-width: 760px; color: var(--text); font-size: 1.08rem; line-height: 1.8; margin-top: 12px; }
+    .hero-actions, .detail-actions, .dialog-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    .hero-actions .btn-action, .detail-actions .btn-action, .contact-banner .btn-action { margin-bottom: 0; }
+    .btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 11px 20px; border: 1px solid #34445a; border-radius: 8px; background: rgba(255,255,255,.035); color: var(--text-white); font: 600 .92rem 'Space Grotesk', sans-serif; text-decoration: none; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+    .btn-secondary:hover { border-color: var(--cyan); background: rgba(0,229,255,.08); transform: translateY(-2px); }
+    .about-box { border-left-width: 3px; padding: 24px 26px; }
+    .about-box p { line-height: 1.85; }
+    .projects-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-top: 38px; }
+    .projects-heading h2, .contact-banner h2 { color: var(--text-white); font: 700 clamp(1.5rem, 3vw, 2rem) 'Space Grotesk', sans-serif; letter-spacing: -.5px; }
+    .projects-heading p { max-width: 430px; color: var(--text-dim); font-size: .9rem; }
+    .eyebrow { display: block; color: var(--green); font-size: .72rem; font-weight: 700; letter-spacing: 1.8px; margin-bottom: 8px; }
+    .project-grid { scroll-margin-top: 20px; }
+    .project-card { min-height: 270px; }
+    .card-desc { line-height: 1.75; }
+    .project-card:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    .contact-banner { margin-top: 72px; padding: clamp(24px, 5vw, 44px); border: 1px solid var(--card-border); border-radius: 16px; background: linear-gradient(135deg, rgba(0,255,102,.075), rgba(0,229,255,.045)); }
+    .contact-banner h2 { max-width: 680px; margin-bottom: 12px; }
+    .contact-banner p { max-width: 720px; margin-bottom: 22px; color: var(--text); line-height: 1.8; }
+    footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    footer a, .footer-contact { color: var(--text-dim); text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; }
+    footer a:hover, .footer-contact:hover { color: var(--cyan); }
+    .contact-overlay[hidden] { display: none; }
+    .contact-overlay { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px; background: rgba(2,5,10,.82); backdrop-filter: blur(10px); }
+    .contact-dialog-panel { position: relative; width: min(100%, 560px); padding: clamp(24px, 5vw, 38px); border: 1px solid #2d4054; border-radius: 16px; background: #0c121c; box-shadow: 0 25px 90px rgba(0,0,0,.55); }
+    .contact-dialog-panel h2 { color: var(--text-white); font: 700 clamp(1.5rem, 4vw, 2rem) 'Space Grotesk', sans-serif; line-height: 1.25; margin-bottom: 14px; padding-right: 24px; }
+    .contact-dialog-panel > p:not(.copy-feedback) { color: var(--text); line-height: 1.8; font-size: .95rem; }
+    .dialog-close { position: absolute; top: 14px; right: 16px; width: 38px; height: 38px; border: 1px solid #34445a; border-radius: 8px; background: transparent; color: var(--text-white); font-size: 1.5rem; cursor: pointer; }
+    .email-address { overflow-wrap: anywhere; margin-top: 22px; padding: 15px 16px; border: 1px solid rgba(0,229,255,.3); border-radius: 8px; background: rgba(0,229,255,.055); color: var(--cyan); font-size: clamp(.95rem, 3vw, 1.08rem); font-weight: 700; }
+    .dialog-actions { margin-top: 18px; }
+    .dialog-actions .btn-action { margin-bottom: 0; }
+    .copy-feedback { min-height: 1.4em; margin-top: 10px; color: var(--green); font-size: .85rem; }
+    body.dialog-open { overflow: hidden; }
+    @media (max-width: 640px) {
+      header { padding-top: 20px; }
+      .nav-bar { align-items: flex-start; gap: 14px; }
+      .logo { font-size: 1rem; }
+      .social-links a { margin-left: 10px; font-size: .8rem; }
+      .catalog-header h1, .project-meta-header h1 { font-size: clamp(1.9rem, 9vw, 2.5rem); line-height: 1.15; }
+      .project-grid { grid-template-columns: 1fr; }
+      .projects-heading { display: block; }
+      .projects-heading p { margin-top: 10px; }
+      .project-card { min-height: auto; padding: 23px; }
+      .btn-action, .btn-secondary { max-width: 100%; }
+      .hero-actions > *, .detail-actions > *, .dialog-actions > * { flex: 1 1 auto; }
+      footer { justify-content: center; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -524,7 +579,7 @@
         <a href="#/" class="logo">jervis<span>@automation:~#</span></a>
         <div class="social-links">
           <a href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener">GitHub</a>
-          <a href="mailto:contact@jervisautomation.dev">Contact</a>
+          <a href="#contact" class="contact-trigger" aria-haspopup="dialog">Contact Jervis</a>
         </div>
       </div>
     </header>
@@ -537,14 +592,16 @@
           <span>SYSTEM ONLINE • AUTOMATION ENGINE ACTIVE</span>
         </div>
         <h1>AI Automation Workflows</h1>
-        <p class="typing-cursor">// Production-ready n8n workflows, autonomous agents, and AI pipelines.</p>
+        <p class="hero-subtitle">I build practical AI-powered workflows that reduce repetitive work, organize information, and keep people in control of important decisions.</p>
+        <div class="hero-actions"><a class="btn-action" href="#projects">Explore my projects <span aria-hidden="true">↓</span></a><button class="btn-secondary contact-trigger" type="button" aria-haspopup="dialog">Discuss a project ↗</button></div>
       </div>
 
       <!-- About Jervis Section -->
       <div class="about-box">
-        <p>👋 Hi, I'm <strong>Jervis</strong> — an aspiring <strong>AI Automation Specialist</strong> dedicated to solving complex real-world problems through intelligent AI automation workflows, LLM agents, and seamless API integrations.</p>
+        <p>👋 I’m <strong>Jervis Tangoan</strong>, an <strong>AI Automation Specialist</strong> building with n8n, LLMs, APIs, and connected business tools. These portfolio projects demonstrate how automation can support customer service, lead qualification, and everyday operations. They are working demos built to show the approach and workflow design—not claims of client results.</p>
       </div>
 
+      <div class="projects-heading" id="projects"><div><span class="eyebrow">SELECTED WORK</span><h2>Projects & workflow demos</h2></div><p>Open a project to watch its walkthrough and explore how the workflow operates.</p></div>
       <div class="project-grid" id="project-cards-container">
         <!-- Rendered via Javascript -->
       </div>
@@ -569,9 +626,7 @@
         <!-- Loom iframe inserted here -->
       </div>
 
-      <a id="github-repo-btn" href="#" target="_blank" rel="noopener" class="btn-action">
-        ⚡ Inspect Source Code on GitHub
-      </a>
+      <div class="detail-actions"><a id="github-repo-btn" href="#" target="_blank" rel="noopener" class="btn-action">⚡ Explore source on GitHub</a><a id="loom-watch-btn" href="#" target="_blank" rel="noopener" class="btn-secondary">Watch on Loom ↗</a></div>
 
       <h2 class="section-title">Overview</h2>
       <div class="content-box">
@@ -586,12 +641,64 @@
       </div>
     </main>
 
+    <section class="contact-banner" id="contact-section">
+      <span class="eyebrow">HAVE A WORKFLOW IN MIND?</span>
+      <h2>Let’s make your process work smarter.</h2>
+      <p>Need help with AI support, lead research, email workflows, or a custom n8n automation? Tell me what you want to improve and we can discuss a practical solution.</p>
+      <button class="btn-action contact-trigger" type="button" aria-haspopup="dialog">Contact Jervis <span aria-hidden="true">↗</span></button>
+    </section>
+
     <footer>
-      <p>Jervis Automation Engine © 2026 • Powered by n8n, AI & Vercel</p>
+      <p>Jervis Tangoan · AI Automation Portfolio · © 2026</p>
+      <p><a href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener noreferrer">GitHub</a> <span aria-hidden="true">·</span> <button class="footer-contact contact-trigger" type="button">Email me</button></p>
     </footer>
   </div>
 
+  <div class="contact-overlay" id="contact-dialog" role="dialog" aria-modal="true" aria-labelledby="contact-dialog-title" aria-describedby="contact-dialog-desc" hidden>
+    <div class="contact-dialog-panel" role="document">
+      <button class="dialog-close" type="button" aria-label="Close contact dialog">×</button>
+      <span class="eyebrow">CONTACT</span>
+      <h2 id="contact-dialog-title">Let’s talk about your next automation.</h2>
+      <p id="contact-dialog-desc">For freelance projects, collaboration, or future AI automation opportunities, send me an email. Share a little about the process you want to improve and what outcome you’re looking for.</p>
+      <div class="email-address" id="contact-email">jervis.tangoan.other@gmail.com</div>
+      <div class="dialog-actions">
+        <a class="btn-action" id="compose-email" href="mailto:jervis.tangoan.other@gmail.com?subject=AI%20Automation%20Project%20Inquiry&body=Hi%20Jervis%2C%0A%0AI%27m%20reaching%20out%20about%20an%20AI%20automation%20opportunity.%0A%0AProject%20or%20process%20to%20improve%3A%0A%0ADesired%20outcome%3A%0A%0ATimeline%3A%0A%0AThanks!">✉ Compose email</a>
+        <button class="btn-secondary" id="copy-email-btn" type="button">Copy email address</button>
+      </div>
+      <p class="copy-feedback" id="copy-feedback" aria-live="polite"></p>
+    </div>
+  </div>
+
   <script>
+    // CONTACT DIALOG
+    const contactDialog = document.getElementById('contact-dialog');
+    const firstContactTrigger = document.querySelector('.contact-trigger');
+    let lastFocusedElement = null;
+    function openContactDialog(event) {
+      lastFocusedElement = event.currentTarget;
+      contactDialog.hidden = false;
+      document.body.classList.add('dialog-open');
+      contactDialog.querySelector('.dialog-close').focus();
+    }
+    function closeContactDialog() {
+      contactDialog.hidden = true;
+      document.body.classList.remove('dialog-open');
+      if (lastFocusedElement) lastFocusedElement.focus();
+    }
+    document.querySelectorAll('.contact-trigger').forEach(button => button.addEventListener('click', openContactDialog));
+    contactDialog.querySelector('.dialog-close').addEventListener('click', closeContactDialog);
+    contactDialog.addEventListener('click', event => { if (event.target === contactDialog) closeContactDialog(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !contactDialog.hidden) closeContactDialog(); });
+    document.getElementById('copy-email-btn').addEventListener('click', async () => {
+      const feedback = document.getElementById('copy-feedback');
+      try {
+        await navigator.clipboard.writeText('jervis.tangoan.other@gmail.com');
+        feedback.textContent = 'Email address copied.';
+      } catch (error) {
+        feedback.textContent = 'Copy is unavailable in this browser. Select the email address above to copy it.';
+      }
+    });
+
     // MATRIX RAIN BACKGROUND ANIMATION
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
@@ -668,6 +775,26 @@
           "<strong>7. Telegram Approval Gate:</strong> I get a Telegram message with the lead's details, the score and the AI's reasoning, with [Approve] and [Disapprove] buttons. The workflow waits until I answer.",
           "<strong>8. Final Status:</strong> If I tap <em>Approve</em>, the lead is marked <em>Qualified</em> in Airtable. If I tap <em>Disapprove</em>, it's marked <em>Disqualified</em>."
         ]
+      },
+      {
+        id: "customer-support-rag",
+        title: "AI Customer Support + RAG System",
+        summary: "A website support chatbot connected to n8n that classifies questions, retrieves relevant knowledge from Supabase, and routes requests through dedicated support paths.",
+        status: "Working Demo",
+        version: "n8n · Gemini · Supabase",
+        loomId: "efcb75921fbd4abda39943ea3b212ead",
+        githubUrl: "https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows",
+        tech: ["n8n", "RAG", "Google Gemini", "Supabase Vector Store", "Website Chatbot"],
+        overview: "This project demonstrates a customer-support chatbot connected to an n8n workflow. When a visitor sends a message, the workflow normalizes the request and uses an LLM classifier to identify the intent. Knowledge-base questions can be answered using relevant documents retrieved from a Supabase vector store, while other intents are directed to separate paths for order/account questions, billing, troubleshooting, or human escalation. The demo uses fictional ForgeFlow information to illustrate the approach; it is not connected to a real company’s customer records.",
+        pipelineSteps: [
+          "<strong>1. Website chat intake:</strong> A visitor submits a message through the website chatbot, which sends the message and session details to an n8n webhook.",
+          "<strong>2. Normalize request data:</strong> The workflow prepares the message, session ID, channel, page URL, and optional customer email for downstream processing.",
+          "<strong>3. Classify the intent:</strong> Google Gemini categorizes the message as knowledge base, order/account, billing, troubleshooting, human escalation, or unknown.",
+          "<strong>4. Route to the matching path:</strong> A Switch node directs the request according to the classifier result, allowing each support category to be handled separately.",
+          "<strong>5. Retrieve knowledge with RAG:</strong> For knowledge-base questions, the workflow uses Google Gemini embeddings and a Supabase vector store to retrieve relevant information from the demo documents.",
+          "<strong>6. Respond with context:</strong> The retrieved information can ground the response in the provided knowledge base rather than relying only on a general model answer.",
+          "<strong>7. Escalate when appropriate:</strong> Sensitive or unresolved requests can be directed toward a human-support path instead of pretending the bot has completed an action."
+        ]
       }
     ];
 
@@ -703,7 +830,7 @@
       let html = WORKFLOWS.map(w => `
         <a href="#/project/${w.id}" class="project-card">
           <div>
-            <span class="card-tag">⚡ ${w.tech.slice(0, 2).join(' • ')}</span>
+            <span class="card-tag">⚡ ${w.id === "customer-support-rag" ? "FEATURED PROJECT" : w.tech.slice(0, 2).join(' • ')}</span>
             <h3 class="card-title">${w.title}</h3>
             <p class="card-desc">${w.summary}</p>
           </div>
@@ -719,7 +846,7 @@
           <div>
             <span class="card-tag" style="color: var(--text-dim);">// IN DEVELOPMENT</span>
             <h3 class="card-title" style="color: var(--text-dim);">Next Workflow Slot</h3>
-            <p class="card-desc">Future AI automation pipeline will be attached here upon repository push.</p>
+            <p class="card-desc">A new workflow will appear here as the portfolio grows.</p>
           </div>
         </div>
       `;
@@ -735,6 +862,8 @@
       document.getElementById('detail-version').innerText = p.version;
       document.getElementById('detail-overview-text').innerText = p.overview;
       document.getElementById('github-repo-btn').href = p.githubUrl;
+      document.getElementById('loom-watch-btn').href = `https://www.loom.com/share/${p.loomId}`;
+      document.getElementById('github-repo-btn').style.display = p.githubUrl ? 'inline-flex' : 'none';
 
       // Loom Embed
       document.getElementById('loom-embed-box').innerHTML = `
