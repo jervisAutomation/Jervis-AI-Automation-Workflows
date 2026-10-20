@@ -210,6 +210,12 @@
     footer a { text-decoration: none; }
     footer a:hover { color: var(--blue); }
 
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .btn[disabled] { opacity: .7; cursor: wait; transform: none; }
+    .form-feedback.ok { color: var(--accent); }
+    .form-feedback.error { color: #ffb703; }
+    .form-feedback a { color: var(--blue); font-weight: 600; }
+
     /* Mobile sticky contact bar */
     .mobile-bar { display: none; }
 
@@ -285,8 +291,8 @@
             <p class="section-intro">If a task follows a pattern, it can usually be automated. Here are the areas I focus on.</p>
           </div>
           <div class="grid-3">
-            <div class="info-card"><div class="ico" aria-hidden="true">✉️</div><h3>Email and inbox automation</h3><p>Summarize incoming emails, draft replies in your tone, and send only after you approve.</p></div>
-            <div class="info-card"><div class="ico" aria-hidden="true">🎯</div><h3>Lead research and qualification</h3><p>Verify new leads, research the person and company, score them, and save the result to your CRM or Airtable.</p></div>
+            <div class="info-card"><div class="ico" aria-hidden="true">✉️</div><h3>Email and inbox automation</h3><p>Summarize incoming emails, draft replies, and send only after you approve.</p></div>
+            <div class="info-card"><div class="ico" aria-hidden="true">🎯</div><h3>Lead research and qualification</h3><p>Verify new leads, research the person and company, score them, and save the result to Airtable.</p></div>
             <div class="info-card"><div class="ico" aria-hidden="true">💬</div><h3>AI support chatbots</h3><p>Website chat that answers from your own documents and hands off to a human when needed.</p></div>
           </div>
         </section>
@@ -356,7 +362,7 @@
         </div>
 
         <div class="video-wrap" id="d-video"></div>
-        <p class="video-note">Video walkthrough of the workflow running. Click full screen for the best view.</p>
+        <p class="video-note">Video walkthrough of this workflow. Use full screen for the best view.</p>
 
         <div class="detail-layout">
           <div class="detail-main">
@@ -414,6 +420,10 @@
               <span><small>Email</small><span class="v" id="email-text">jervis.tangoan.other@gmail.com</span></span>
               <button class="copy-btn" type="button" id="copy-email">Copy</button>
             </div>
+            <a class="method" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=jervis.tangoan.other%40gmail.com&amp;su=AI%20Automation%20Project%20Inquiry" target="_blank" rel="noopener noreferrer">
+              <span class="m-ico" aria-hidden="true">📨</span>
+              <span><small>No email app set up?</small><span class="v">Write to me in Gmail</span></span>
+            </a>
             <a class="method" href="https://github.com/jervisAutomation/Jervis-AI-Automation-Workflows" target="_blank" rel="noopener noreferrer">
               <span class="m-ico" aria-hidden="true">💻</span>
               <span><small>GitHub</small><span class="v">jervisAutomation</span></span>
@@ -437,8 +447,9 @@
             </select>
           </div>
           <div class="field"><label for="f-msg">Tell me about the process you want to improve</label><textarea id="f-msg" name="message" placeholder="What takes up the most time today, and what would a good result look like?" required></textarea></div>
-          <button class="btn btn-primary" type="submit">Send by email ✉</button>
-          <p class="form-note">This opens your email app with the message ready to send. Prefer to write it yourself? Email me directly.</p>
+          <div class="hp" aria-hidden="true"><label for="f-hp">Leave this field empty</label><input id="f-hp" name="_honey" type="text" tabindex="-1" autocomplete="off"></div>
+          <button class="btn btn-primary" id="submit-btn" type="submit">Send message</button>
+          <p class="form-note">Your message goes straight to my inbox and I will reply to the email address you enter. You can also use the email options on the left.</p>
           <p class="form-feedback" id="form-feedback" role="status" aria-live="polite"></p>
         </form>
       </section>
@@ -485,15 +496,15 @@
         ],
         steps: [
           { t: 'Check for new emails', d: 'The workflow checks your Gmail inbox every minute for new, unread messages.', n: 'Gmail trigger (polling)' },
-          { t: 'AI reads and summarizes', d: 'The email text goes to an LLM running on Groq. It writes a short summary, decides whether a reply is needed, and drafts a polite HTML reply.', n: 'Basic LLM Chain + Groq chat model' },
-          { t: 'Decide what to do next', d: 'If no reply is needed, you get a short Telegram notification and the workflow ends.', n: 'If / Switch node' },
+          { t: 'AI reads and summarizes', d: 'The email text goes to an LLM running on Groq. It writes a short summary, decides whether a reply is needed, and drafts a polite HTML reply.', n: 'LLM hosted on Groq' },
+          { t: 'Decide what to do next', d: 'If no reply is needed, you get a short Telegram notification and the workflow ends.', n: 'Conditional routing' },
           { t: 'Create the Gmail draft', d: 'If a reply is needed, a draft is created in Gmail and linked to the original email thread.', n: 'Gmail: create draft' },
-          { t: 'Ask for your approval', d: 'You receive a Telegram message with the summary and suggested reply, plus Approve and Disapprove buttons.', n: 'Telegram: send and wait for response' },
+          { t: 'Ask for your approval', d: 'You receive a Telegram message with the summary and suggested reply, plus Approve and Disapprove buttons.', n: 'Telegram message with Approve / Disapprove buttons' },
           { t: 'Send or cancel', d: 'Approve sends the draft through Gmail right away. Disapprove cancels safely and nothing is sent.', n: 'Gmail: send' }
         ],
         techRows: [
-          ['Automation platform', 'n8n workflow with a scheduled Gmail trigger'],
-          ['AI model', 'LLM hosted on Groq, called through an n8n LLM chain'],
+          ['Automation platform', 'n8n workflow that polls Gmail for new emails'],
+          ['AI model', 'LLM hosted on Groq'],
           ['Integrations', 'Gmail API (read, draft, send) and Telegram Bot'],
           ['Safety', 'Human-in-the-loop approval gate before the send step']
         ]
@@ -522,12 +533,12 @@
         ],
         steps: [
           { t: 'Form submission', d: 'A webhook receives each new contact-form submission: name, work email, company, phone, what they want to solve, and whether they agreed to be contacted.', n: 'Webhook trigger' },
-          { t: 'Consent check', d: 'If the consent box was not ticked, the person is logged in a separate Airtable table and the workflow stops. No research, no follow-up.', n: 'If node + Airtable' },
+          { t: 'Consent check', d: 'If the consent box was not ticked, the person is logged in a separate Airtable table and the workflow stops. No research, no follow-up.', n: 'Consent check + Airtable' },
           { t: 'Email verification', d: 'Hunter checks whether the email address can actually receive mail. Undeliverable addresses are logged with a note and skipped.', n: 'Hunter email verifier' },
           { t: 'AI research', d: 'A Groq-powered agent uses Tavily web search, limited to two searches. It first confirms the person works at the company, then looks up the company size. Anything it cannot verify comes back as Unknown.', n: 'AI Agent + Tavily tool' },
-          { t: 'Lead scoring', d: 'The agent returns a fixed structure: a High, Medium or Low score, a short reason, and the company size. A strict format means later steps never have to interpret free text.', n: 'Structured output parser' },
-          { t: 'Smart routing', d: 'Low leads go straight to Airtable as Low priority with no human time spent. Medium and High leads are saved as New and sent for review.', n: 'Switch node + Airtable' },
-          { t: 'Telegram approval', d: 'You get a message with the lead details, score and the AI reasoning, with Approve and Disapprove buttons. The workflow waits for your answer.', n: 'Telegram: send and wait' },
+          { t: 'Lead scoring', d: 'The agent returns a fixed structure: a High, Medium or Low score, a short reason, and the company size. A strict format means later steps never have to interpret free text.', n: 'Structured, fixed-format output' },
+          { t: 'Smart routing', d: 'Low leads go straight to Airtable as Low priority with no human time spent. Medium and High leads are saved as New and sent for review.', n: 'Routing by score + Airtable' },
+          { t: 'Telegram approval', d: 'You get a message with the lead details, score and the AI reasoning, with Approve and Disapprove buttons. The workflow waits for your answer.', n: 'Telegram message with Approve / Disapprove buttons' },
           { t: 'Final status', d: 'Approve marks the lead Qualified in Airtable. Disapprove marks it Disqualified.', n: 'Airtable: update record' }
         ],
         techRows: [
@@ -542,36 +553,46 @@
         id: 'customer-support-rag',
         category: 'Support chatbot (RAG)',
         title: 'AI Customer Support with RAG',
-        summary: 'A website chatbot connected to n8n that understands what a visitor is asking, finds answers in a knowledge base, and routes other requests to the right path.',
-        plain: 'Answers common questions from your own documents and passes sensitive ones to a human instead of making things up.',
+        summary: 'A website chatbot backed by an n8n workflow. It works out what each customer needs, then hands the message to a specialist AI agent for product questions, orders, billing or troubleshooting, or to a human on Telegram.',
+        plain: 'Answers common questions from a document knowledge base and a live order lookup, and passes sensitive requests to a human instead of making things up.',
         status: 'Working demo',
         loomId: 'efcb75921fbd4abda39943ea3b212ead',
         githubUrl: GITHUB_ROOT,
-        tech: ['n8n', 'Google Gemini', 'Supabase', 'RAG', 'Website chat'],
-        cardFacts: ['Classifies each question', 'Answers from your documents', 'Escalates to a human when needed'],
-        bestFor: 'Businesses with FAQs, policies or product docs and frequent support questions',
-        humanControl: 'Sensitive or unresolved requests are directed to human support',
-        problem: 'Support teams answer the same questions again and again, and a generic chatbot may invent answers that are wrong for your business.',
-        solution: 'The chatbot first works out what the visitor wants. For knowledge questions it retrieves the relevant passages from your documents (RAG) and answers using them. Other topics follow their own paths, including escalation to a human.',
+        tech: ['n8n', 'Groq LLMs', 'Gemini embeddings', 'Supabase', 'Notion', 'Telegram'],
+        cardFacts: ['Sorts each message into 1 of 6 intents', 'Answers from documents and an order database', 'Sends sensitive requests to a human on Telegram'],
+        bestFor: 'Businesses with FAQs, policies, product docs or order data and frequent support questions',
+        humanControl: 'Security issues, suspected data loss, sensitive disputes and explicit requests for a person are sent to a human on Telegram',
+        problem: 'Support teams answer the same questions again and again, and a generic chatbot may invent answers or order details that are wrong for your business.',
+        solution: 'Each message is first sorted into one of six intents. A dedicated AI agent then handles it: product, billing and troubleshooting questions are answered from a vector store of your documents (RAG), order questions are checked against an order database, sensitive requests go to a human on Telegram, and vague messages get a clarifying question.',
         outcomes: [
-          '<strong>Faster answers:</strong> common questions are handled instantly from your knowledge base.',
-          '<strong>Grounded replies:</strong> answers are based on your documents instead of only the model\'s general knowledge.',
-          '<strong>Right path for each request:</strong> billing, orders, troubleshooting and escalation are separated.',
-          '<strong>Honest handoff:</strong> sensitive requests go to a person rather than the bot pretending to complete an action.'
+          '<strong>The right specialist for each question:</strong> product, order, billing, troubleshooting and general messages each have their own AI agent and instructions.',
+          '<strong>Answers grounded in your documents:</strong> the knowledge, billing and troubleshooting agents search a vector store (top 3 matching passages) and are told not to invent policies, prices or fixes.',
+          '<strong>Order answers from real data:</strong> the order number is pulled from the message and looked up in a Notion order database. If it is not found, the bot says so instead of guessing.',
+          '<strong>Safe handoff to a person:</strong> security incidents, suspected data loss, sensitive disputes and explicit requests for human help are sent to Telegram, and the customer is told honestly that the message was passed on.',
+          '<strong>Safer replies:</strong> the agents never ask for passwords, API keys, authentication codes or full card details, and never claim an action was done without a tool confirming it.',
+          '<strong>Easy to update:</strong> upload a PDF or CSV through a form and it is split, embedded and added to the knowledge base.'
         ],
         steps: [
-          { t: 'Website chat intake', d: 'A visitor sends a message through the website chatbot, which passes the message and session details to n8n.', n: 'Webhook trigger' },
-          { t: 'Prepare the request', d: 'The workflow tidies up the message, session ID, channel, page URL and optional customer email for the next steps.', n: 'Set / Edit Fields node' },
-          { t: 'Classify the intent', d: 'The LLM chain labels the message as knowledge base, order or account, billing, troubleshooting, human escalation, or unknown.', n: 'LLM classifier (Gemini)' },
-          { t: 'Route to the right path', d: 'Each category is handled separately so every kind of request gets suitable treatment.', n: 'Switch node' },
-          { t: 'Retrieve knowledge', d: 'For knowledge questions, the workflow turns the question into an embedding and searches the Supabase vector store for the most relevant passages.', n: 'Gemini embeddings + Supabase vector store' },
-          { t: 'Reply with context', d: 'The retrieved passages are given to the model so the answer is grounded in the provided documents.', n: 'AI Agent / chain with retriever' },
-          { t: 'Escalate when appropriate', d: 'Sensitive or unresolved requests are directed to a human-support path.', n: 'Escalation branch' }
+          { t: 'Website chat intake', d: 'A visitor sends a message through the website chatbot. n8n receives it with the session ID, channel, page URL and optional customer email, and streams the reply back.', n: 'Webhook (POST, streaming response)' },
+          { t: 'Prepare the request', d: 'The workflow tidies the incoming data into clear fields, including whether this message is a follow-up to a chat that was already handed to a human.', n: 'Edit Fields (Set) node' },
+          { t: 'Check for a human follow-up', d: 'If the customer is already talking to human support, the AI is skipped. The new message is forwarded to Telegram with the session ID, and the customer is told it was passed on.', n: 'If node + Telegram + Respond to Webhook' },
+          { t: 'Classify the intent', d: 'An LLM on Groq (temperature 0) labels the message as exactly one of: knowledge base, order or account, billing, troubleshooting, human escalation or unknown. Its rules stop it from assuming a technical problem from vague messages such as "It isn\'t working".', n: 'Basic LLM Chain + structured output (6 allowed values)' },
+          { t: 'Route to the right path', d: 'A switch sends the message down one of six paths, so each type of request gets its own instructions and tools.', n: 'Switch node (6 outputs)' },
+          { t: 'Product questions', d: 'An AI agent searches the Supabase vector store (Gemini embeddings, top 3 passages) and answers only from what it finds. If the documents do not cover the question, it says so.', n: 'AI Agent + Supabase vector store (retrieve as tool)' },
+          { t: 'Order and account questions', d: 'An LLM extracts the order number and the workflow looks it up in a Notion order database, marking it found or not found. An agent then answers using only the verified details (service, plan, status, billing cycle, next billing date, total), or asks the customer to check the order number.', n: 'LLM extraction + Notion lookup + If node + AI Agent' },
+          { t: 'Billing and troubleshooting', d: 'Each has its own agent that searches the documents before answering. Billing covers charges, invoices, refunds and cancellations. Troubleshooting gives documented steps in a safe order. Both recommend human support when the documents are not enough.', n: '2 AI Agents + Supabase retrieval tools' },
+          { t: 'Human escalation', d: 'The workflow marks the conversation as waiting for a human and sends the customer message, session ID and page URL to a support chat on Telegram. The AI then confirms in one or two sentences that it was passed on, without claiming a person has replied.', n: 'Edit Fields + Telegram + AI Agent' },
+          { t: 'Unclear messages', d: 'Greetings and vague messages go to a general support agent that answers briefly or asks one clarifying question. For complicated issues it suggests emailing the support address.', n: 'AI Agent (general support)' },
+          { t: 'Keeping the knowledge base up to date', d: 'A separate flow lets you upload PDF or CSV files through a form. They are split into chunks (800 characters, 150 overlap), embedded with Gemini and stored in Supabase.', n: 'Form trigger + Text splitter + Gemini embeddings + Supabase' }
         ],
         techRows: [
-          ['Automation platform', 'n8n with a webhook connected to a website chat widget'],
-          ['AI models', 'Google Gemini for embeddings and Groq for classification and answers'],
-          ['Knowledge base', 'Supabase vector store loaded with demo documents'],
+          ['Automation platform', 'n8n with a POST webhook that streams replies back to the website chat'],
+          ['AI models', 'Groq-hosted LLMs (gpt-oss-20b for classification and most agents, Qwen qwen3.8-27b for order extraction and order answers) and Google Gemini for embeddings'],
+          ['Knowledge base', 'Supabase vector store (one documents table). Each agent has its own retrieval tool that returns the top 3 passages'],
+          ['Knowledge loading', 'Form upload of PDF or CSV files, split into 800-character chunks with 150 overlap'],
+          ['Order data', 'Notion database of demo orders, searched by order number'],
+          ['Human handoff', 'Telegram bot message to a support chat'],
+          ['Safety', 'Fixed-format intent output, agents told not to invent facts, no requests for passwords or card details, escalation path for sensitive cases'],
           ['Demo data', 'Fictional company (ForgeFlow). Not connected to real customer records.']
         ]
       }
@@ -683,16 +704,61 @@
       } else { done(false); }
     });
 
-    $('contact-form').addEventListener('submit', function (e) {
+    /* Contact form: sends through FormSubmit (no mail app needed), with Gmail / mail-app fallbacks */
+    var form = $('contact-form'), submitBtn = $('submit-btn'), feedback = $('form-feedback');
+
+    function setFeedback(kind, text) {
+      feedback.className = 'form-feedback ' + kind;
+      feedback.textContent = text;
+    }
+
+    function fallbackLinks(subject, body) {
+      var gmail = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(EMAIL) + '&su=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      var mailto = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      feedback.className = 'form-feedback error';
+      feedback.textContent = 'Sorry, your message could not be sent automatically. Please send it with one of these instead: ';
+      var a = document.createElement('a');
+      a.href = gmail; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Open in Gmail';
+      var b = document.createElement('a');
+      b.href = mailto; b.textContent = 'Open my email app';
+      feedback.appendChild(a);
+      feedback.appendChild(document.createTextNode(' or '));
+      feedback.appendChild(b);
+      feedback.appendChild(document.createTextNode(', or write to ' + EMAIL + '.'));
+    }
+
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var name = $('f-name').value.trim(), email = $('f-email').value.trim(), msg = $('f-msg').value.trim();
-      var fb = $('form-feedback');
-      if (!name || !email || !msg) { fb.style.color = '#ffb703'; fb.textContent = 'Please fill in your name, email and a short message.'; return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { fb.style.color = '#ffb703'; fb.textContent = 'Please enter a valid email address.'; return; }
-      var subject = 'AI Automation Inquiry: ' + $('f-type').value;
-      var body = 'Hi Jervis,\n\n' + msg + '\n\nNeed: ' + $('f-type').value + '\nName: ' + name + '\nReply to: ' + email;
-      fb.style.color = ''; fb.textContent = 'Opening your email app. If nothing opens, email ' + EMAIL + ' directly.';
-      window.location.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      var name = $('f-name').value.trim(), email = $('f-email').value.trim(), msg = $('f-msg').value.trim(), need = $('f-type').value;
+      if (!name || !email || !msg) { setFeedback('error', 'Please fill in your name, email and a short message.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setFeedback('error', 'Please enter a valid email address.'); return; }
+
+      /* Hidden honeypot field: real visitors never fill it in, bots often do */
+      if ($('f-hp').value) { setFeedback('ok', 'Thanks! Your message was sent.'); form.reset(); return; }
+
+      var subject = 'Portfolio inquiry: ' + need;
+      var body = 'Hi Jervis,\n\n' + msg + '\n\nNeed: ' + need + '\nName: ' + name + '\nReply to: ' + email;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      setFeedback('', 'Sending your message...');
+
+      fetch('https://formsubmit.co/ajax/' + EMAIL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, need: need, message: msg, _subject: subject, _template: 'table' })
+      })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (r) {
+          if (r.ok && (r.data.success === true || r.data.success === 'true')) {
+            setFeedback('ok', 'Thank you, ' + name + '! Your message was sent. I will reply to ' + email + '.');
+            form.reset();
+          } else {
+            throw new Error('not accepted');
+          }
+        })
+        .catch(function () { fallbackLinks(subject, body); })
+        .then(function () { submitBtn.disabled = false; submitBtn.textContent = 'Send message'; });
     });
 
     renderCards();
