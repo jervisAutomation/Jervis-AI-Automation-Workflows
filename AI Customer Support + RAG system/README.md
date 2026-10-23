@@ -14,7 +14,8 @@ human escalation, and unknown intents.
 
 ## Workflow overview
 
-![AI Customer Support + RAG workflow overview](workflow-screenshot.png)
+![AI Customer Support + RAG workflow overview](<img width="1365" height="642" alt="workflow ai chatbot" src="https://github.com/user-attachments/assets/006213a8-975d-4d7b-8485-c9baa8f7ab12" />
+)
 
 *The screenshot above shows the overall workflow layout in n8n,
 including the intent classifier, knowledge retrieval, support branches,
